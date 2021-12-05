@@ -1,0 +1,55 @@
+.client-card {
+  //   background: rgb(243, 243, 243);
+  border-bottom: 1px solid rgb(224, 224, 224);
+  padding: 10px;
+  margin-bottom: 5px;
+
+  .buttons-list {
+    float: right;
+  }
+
+  .client-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(78, 78, 78);
+  }
+
+  .client-id {
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  button {
+    margin-right: 10px;
+    padding: 7px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    transition: ease-in-out 0.2s;
+    cursor: pointer;
+  }
+
+  .view-button {
+    color: #fff;
+    background: rgb(70, 70, 143);
+
+    &:hover {
+      background: rgb(71, 71, 71);
+    }
+  }
+
+  .delete-button {
+    color: #fff;
+    background: rgb(149, 37, 37);
+
+    &:hover {
+      background: rgb(71, 71, 71);
+    }
+  }
+
+  .client-img {
+    height: 90px;
+    width: 90px;
+    border-radius: 50%;
+  }
+}

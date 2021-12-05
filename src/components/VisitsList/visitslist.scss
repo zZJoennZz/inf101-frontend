@@ -1,0 +1,80 @@
+.visits-list {
+  padding: 0;
+
+  .visits-list-inner {
+    border-bottom: 1px solid rgb(224, 224, 224);
+    padding: 10px;
+  }
+
+  button {
+    margin-right: 10px;
+    padding: 7px 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    transition: ease-in-out 0.2s;
+    cursor: pointer;
+  }
+
+  .visits-list-print {
+    padding: 5px;
+    float: right;
+    color: #fff;
+    background: rgb(34, 71, 105);
+
+    &:hover {
+      background: rgb(71, 71, 71);
+    }
+  }
+
+  .visits-list-view {
+    margin-top: 10px;
+    color: #fff;
+    background: rgb(70, 70, 143);
+
+    &:hover {
+      background: rgb(71, 71, 71);
+    }
+  }
+
+  .visits-list-delete {
+    padding: 5px;
+    float: right;
+    color: #fff;
+    background: rgb(149, 37, 37);
+
+    &:hover {
+      background: rgb(71, 71, 71);
+    }
+  }
+
+  .visits-list-info {
+    margin-bottom: 5px;
+  }
+
+  .visits-list-label {
+    font-weight: 200;
+  }
+
+  .visits-list-client-name {
+    font-weight: 600;
+  }
+
+  .visits-list-client-id {
+    background: #973a4f;
+    border-radius: 10px;
+    font-size: 12px;
+    padding: 3px;
+    color: #fff;
+  }
+
+  .visits-list-date {
+    font-weight: 600;
+  }
+
+  .visits-list-client-img {
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+  }
+}
