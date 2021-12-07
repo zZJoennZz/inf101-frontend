@@ -42,7 +42,7 @@ const Visits = () => {
                     </div>
                     <div className="col-3">
                         <button className="add-visit">
-                            <i class="fas fa-plus-square"></i> Add new
+                            <i className="fas fa-plus-square"></i> Add new
                         </button>
                     </div>
                 </div>

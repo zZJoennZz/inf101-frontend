@@ -17,10 +17,10 @@ const ClientsList = (props) => {
                     <div className="col-5">
                         <div className="buttons-list">
                             <button className="view-button">
-                                <i class="fas fa-folder-open"></i> View
+                                <i className="fas fa-folder-open"></i> View
                             </button>
                             <button className="delete-button">
-                                <i class="fas fa-trash-alt"></i>
+                                <i className="fas fa-trash-alt"></i>
                             </button>
                         </div>
                     </div>

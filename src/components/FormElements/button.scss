@@ -1,0 +1,25 @@
+.btn-default {
+  background: #299961;
+  padding: 8px 10px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+
+  &:hover {
+    background: #1f7c4d;
+  }
+}
+
+.btn-err {
+  background: #a32929;
+  padding: 8px 10px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+
+  &:hover {
+    background: #7e1e1e;
+  }
+}

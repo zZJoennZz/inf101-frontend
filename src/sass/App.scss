@@ -3,6 +3,8 @@ $bgColor: #fff;
 $mainFont: rgb(78, 78, 78);
 $borderColor: rgb(224, 224, 224);
 
+$accentColor: rgb(151, 58, 73);
+
 $darkLink: #1e7597;
 $darkLinkHover: rgb(143, 143, 143);
 
@@ -65,6 +67,33 @@ body {
   border-right: solid 1px $borderColor;
 }
 
+.active {
+  color: $accentColor !important;
+  font-weight: 700;
+  margin: 15px;
+}
+
+.menu {
+  ul {
+    list-style-position: inside;
+    list-style-type: none;
+  }
+
+  a {
+    color: #7bbaab;
+
+    &:hover {
+      color: rgb(143, 143, 143);
+    }
+  }
+
+  li {
+    font-size: 20px;
+    border-bottom: 1px solid rgb(224, 224, 224);
+    padding: 15px 0px;
+  }
+}
+
 .main-center {
   background: #fff;
 }
@@ -84,7 +113,7 @@ body {
 }
 
 .App {
-  width: 70%;
+  width: 80%;
   margin: auto;
 }
 
@@ -99,6 +128,10 @@ body {
 
   .full-height {
     height: auto;
+  }
+
+  input {
+    width: 100% !important;
   }
 }
 
@@ -150,4 +183,81 @@ body {
       }
     }
   }
+}
+
+input[type="text"] {
+  margin-bottom: 20px;
+  font-size: 18px;
+  padding: 8px;
+  border: solid 1px #c8c8c8;
+  border-radius: 5px;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+input[type="password"] {
+  margin-bottom: 20px;
+  font-size: 18px;
+  padding: 8px;
+  border: solid 1px #c8c8c8;
+  border-radius: 5px;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+input[type="date"] {
+  margin-bottom: 20px;
+  font-size: 18px;
+  padding: 7px;
+  border: solid 1px #c8c8c8;
+  border-radius: 5px;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+select {
+  margin-bottom: 20px;
+  font-size: 18px;
+  padding: 8px;
+  border: solid 1px #c8c8c8;
+  border-radius: 5px;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.modal-title {
+  font-size: 25px;
+  font-weight: 600;
+  color: $accentColor;
+  text-transform: uppercase;
+}
+
+.new-client {
+  .new-client-form-field {
+    padding: 0px 5px 0px 0px;
+
+    &:last-child {
+      padding: 0;
+    }
+
+    input {
+      margin-top: 5px;
+    }
+
+    select {
+      margin-top: 5px;
+    }
+  }
+}
+
+label {
+  font-size: 12px;
 }

@@ -12,12 +12,12 @@ const HomeNotLoggedIn = () => {
                         <hr className="divider" />
                         <form action="#">
                             <div>
-                                <input type="text" name="username" id="username" className="login-text-input" placeholder="Username" />
+                                <input type="text" name="username" id="username" className="login-text-input" placeholder="Username" autoComplete="username" />
                             </div>
                             <div>
-                                <input type="password" name="password" id="password" className="login-text-input" placeholder="Password" />
+                                <input type="password" name="password" id="password" className="login-text-input" placeholder="Password" autoComplete="current-password" />
                             </div>
-                            <button className="login-button">Login <i class="fas fa-arrow-right"></i></button>
+                            <button className="login-button">Login <i className="fas fa-arrow-right"></i></button>
                         </form>
 
                     </div>
