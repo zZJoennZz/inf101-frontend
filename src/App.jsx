@@ -9,8 +9,13 @@ import UserMenus from './components/UserMenus/UserMenus';
 //pages
 //import Test from './pages/Test';
 import Clients from './pages/Clients/Clients';
+import ViewClient from './pages/Clients/ViewClient';
+import ViewRecord from './pages/Clients/ViewRecord';
 import HomeNotLoggedIn from './pages/Home/HomeNotLoggedIn';
 import Visits from './pages/Visits/Visits';
+import NewRecord from './pages/Clients/NewRecord';
+
+import FormGenerator from './pages/FormGenerator/FormGenerator';
 
 function App() {
   return (
@@ -31,8 +36,20 @@ function App() {
             <Route path="/clients" element={
               <Clients />
             } />
+            <Route path="/clients/:clientId" element={
+              <ViewClient />
+            } />
+            <Route path="/clients/records/:clientId/:inputId" element={
+              <ViewRecord />
+            } />
+            <Route path="/clients/records/new/:clientId" element={
+              <NewRecord />
+            } />
             <Route path="/visits" element={
               <Visits />
+            } />
+            <Route path="/generate-form" element={
+              <FormGenerator />
             } />
           </Routes>
         </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import './clientslist.scss';
+import { Link } from 'react-router-dom';
 
 const ClientsList = (props) => {
     const { data } = props;
@@ -16,9 +16,9 @@ const ClientsList = (props) => {
                     </div>
                     <div className="col-5">
                         <div className="buttons-list">
-                            <button className="view-button">
+                            <Link to={"/clients/" + e.clientId} className="view-button">
                                 <i className="fas fa-folder-open"></i> View
-                            </button>
+                            </Link>
                             <button className="delete-button">
                                 <i className="fas fa-trash-alt"></i>
                             </button>

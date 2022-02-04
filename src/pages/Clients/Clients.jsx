@@ -107,7 +107,7 @@ const NewClient = () => {
                     </div>
                     <div className="col-3 new-client-form-field">
                         <TextInput 
-                            inputLabel="Last Name:" 
+                            inputLabel="Suffix:" 
                             type="text" 
                             className="new-client-text" 
                             name="suffix" id="suffix" 
