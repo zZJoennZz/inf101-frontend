@@ -106,6 +106,8 @@ a {
 
 .main-center {
   background: #fff;
+  max-height: 100vh;
+  overflow: auto;
 }
 
 .right-bar {
@@ -186,6 +188,9 @@ a {
   }
 
   .usermenus-footer {
+    font-size: 12px;
+    font-style: italic;
+    text-align: center;
     a {
       color: $darkLink;
       &:hover {
@@ -214,8 +219,8 @@ a {
 }
 
 input[type="text"] {
-  margin-bottom: 20px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 13px;
   padding: 8px;
   border: solid 1px #c8c8c8;
   border-radius: 5px;
@@ -226,8 +231,8 @@ input[type="text"] {
 }
 
 input[type="email"] {
-  margin-bottom: 20px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 13px;
   padding: 8px;
   border: solid 1px #c8c8c8;
   border-radius: 5px;
@@ -238,8 +243,8 @@ input[type="email"] {
 }
 
 input[type="password"] {
-  margin-bottom: 20px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 13px;
   padding: 8px;
   border: solid 1px #c8c8c8;
   border-radius: 5px;
@@ -250,8 +255,8 @@ input[type="password"] {
 }
 
 input[type="date"] {
-  margin-bottom: 20px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 13px;
   padding: 7px;
   border: solid 1px #c8c8c8;
   border-radius: 5px;
@@ -262,7 +267,7 @@ input[type="date"] {
 }
 
 input[type="file"] {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 13px;
   padding: 7px;
   border: solid 1px #c8c8c8;
@@ -274,8 +279,8 @@ input[type="file"] {
 }
 
 select {
-  margin-bottom: 20px;
-  font-size: 18px;
+  margin-bottom: 10px;
+  font-size: 13px;
   padding: 8px;
   border: solid 1px #c8c8c8;
   border-radius: 5px;
@@ -408,6 +413,9 @@ label {
         font-weight: 600;
       }
     }
+    .client-form-field {
+      padding: 5px;
+    }
   }
 
   .records-section {
@@ -422,7 +430,13 @@ label {
 
   .client-info {
     margin-top: 20px;
+    .client-edit:hover {
+      opacity: 0.8;
+      cursor: pointer;
+    }
     .edit-btn {
+      width: 50px;
+      height: 50px;
       float: right;
       border: none;
       padding: 10px;

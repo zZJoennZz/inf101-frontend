@@ -1,25 +1,12 @@
 import React from 'react';
 import './modal.scss';
 
-const Modal = ({content, title, defaultMode, buttonText, buttonClass, buttonIcon}) => {
-
-    const [isOpen, setIsOpen] = React.useState(defaultMode);
-
-    const toggleModal = () => {
-        if (isOpen) 
-            setIsOpen(false);
-        else
-            setIsOpen(true);
-    }
-
+const Modal = ({content, title, defaultMode, onClickToggle}) => {
     return (
         <div>
-
-            <button className={buttonClass} onClick={toggleModal}><i className={"fas fa-" + buttonIcon}></i> {buttonText}</button>
-            
-            <div className={isOpen ? "modal show-modal" : "modal"}>
+            <div className={defaultMode ? "modal show-modal" : "modal"}>
                 <div className="modal-content">
-                    <span className="close-button" onClick={toggleModal}><i className="fas fa-times"></i></span>
+                    <span className="close-button" onClick={onClickToggle}><i className="fas fa-times"></i></span>
                     <div className="modal-title">
                         {title}
                     </div>

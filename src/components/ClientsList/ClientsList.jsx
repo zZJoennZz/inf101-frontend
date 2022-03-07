@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const ClientsList = (props) => {
-    const { data } = props;
+    const { data, deleteClient } = props;
     return (
         data.map(e => 
             <div className="client-card" key={e.id}>
@@ -19,7 +19,7 @@ const ClientsList = (props) => {
                             <Link to={"/clients/" + e.id} className="view-button">
                                 <i className="fas fa-folder-open"></i> View
                             </Link>
-                            <button className="delete-button">
+                            <button onClick={deleteClient.bind(this, e.id)} className="delete-button">
                                 <i className="fas fa-trash-alt"></i>
                             </button>
                         </div>

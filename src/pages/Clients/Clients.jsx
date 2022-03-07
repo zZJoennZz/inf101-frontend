@@ -13,38 +13,41 @@ import Button from '../../components/FormElements/Button';
 
 import { regions, provinces, cities, barangays } from 'select-philippines-address';
 
-import api from '../../api/api';
-
 import axios from 'axios';
 
 const Clients = ({ isAuthenticated }) => {
-    let  [clientList, setClientList] = React.useState(false);
+    let [clientList, setClientList] = React.useState(false);
+    let [openModal, setOpenModal] = React.useState(false);
+
+    const deleteCt = async (clientId) => {
+        let rusure = window.confirm("Are you sure to delete this profile?");
+        try {
+            if (rusure) {
+                await axios.delete(`${process.env.REACT_APP_API_URL}client/${clientId}`, {headers : {'Authorization' : localStorage.getItem('token'), 'Content-Type' : 'multipart/form-data','Allow-Control-Allow-Origin' : '*',}})
+                    .then(res => {
+                        toast('Client profile successfully deleted!');
+                        getClients(true);
+                    })
+                    .catch(error => {
+                        toast("Something went wrong. Please reload and try again.");
+                    })
+            }
+        } catch (error) {
+            toast("Something went wrong. Please reload and try again.");
+        }
+    }
+
+    const getClients  = async (isSub) => {
+        await axios.get(`${process.env.REACT_APP_API_URL}client`, {headers : {'Authorization' : localStorage.getItem('token'), 'Content-Type' : 'multipart/form-data','Allow-Control-Allow-Origin' : '*',}})
+            .then(res => isSub ? setClientList(res.data.data) : null)
+            .catch(err => isSub ? setClientList(false) : null);
+    }
 
     React.useEffect(() => {
         let isSub = true;
-        const getClients  = async () => {
-            await api.get('client')
-                .then(res => isSub ? setClientList(res.data.data) : null)
-                .catch(err => isSub ? setClientList(false) : null);
-        }
-        getClients();
+        getClients(isSub);
         return () => (isSub = false)
     }, []);
-    // const dummyData = [
-    //     {
-    //         'userImg' : 'https://i.postimg.cc/YqDt5jpm/user-img.jpg',
-    //         'name' : 'Joenn S. Aquilino',
-    //         'clientId' : '101-1' 
-    //     },{
-    //         'userImg' : 'https://i.postimg.cc/YqDt5jpm/user-img.jpg',
-    //         'name' : 'Ena Lynn S. Aquilino',
-    //         'clientId' : '101-2' 
-    //     },{
-    //         'userImg' : 'https://i.postimg.cc/YqDt5jpm/user-img.jpg',
-    //         'name' : 'Jewelynn S. Aquilino',
-    //         'clientId' : '101-3' 
-    //     },
-    // ];
 
     return (
         <>
@@ -60,13 +63,12 @@ const Clients = ({ isAuthenticated }) => {
                                     <h2>Manage your clients</h2>
                                 </div>
                                 <div className="col-3">
+                                    <button className="add-client" onClick={() => setOpenModal(!openModal)}><i className="fas fa-plus-square"></i> Add new</button>
                                     <Modal 
-                                        content={<NewClient />} 
+                                        content={<NewClient rerunList={getClients.bind(this, true)} closeModal={(e) => setOpenModal(e)} />} 
                                         title="Add new client" 
-                                        defaultMode={false} 
-                                        buttonText="Add new"
-                                        buttonClass="add-client" 
-                                        buttonIcon="plus-square"
+                                        defaultMode={openModal} 
+                                        onClickToggle={() => setOpenModal(!openModal)}
                                     />
                                 </div>
                             </div>
@@ -78,7 +80,7 @@ const Clients = ({ isAuthenticated }) => {
                                         !clientList ?
                                             <>Loading...</>
                                         :
-                                            <ClientList data={clientList} />
+                                            <ClientList data={clientList} deleteClient={deleteCt.bind(this)} />
                                     }
                                 </div>
                             </div>
@@ -89,8 +91,10 @@ const Clients = ({ isAuthenticated }) => {
     )
 }
 
-const NewClient = () => {
+const NewClient = ({ closeModal, rerunList }) => {
+    let frmRef = React.useRef(0);
 
+    let [isSubmit, setIsSubmit] = React.useState(false);
     let [frmData, setFrmData] = React.useState(false);
     let [regionsList, setRegionsList] = React.useState(false);
     let [provincesList, setProvincesList] = React.useState(false);
@@ -102,6 +106,7 @@ const NewClient = () => {
 
     const onSubmitFrm = async (e) => {
         e.preventDefault();
+        setIsSubmit(true);
         let imageData = new FormData();
         let imgPath, sigPath;
         imageData.append('image', ctImage);
@@ -111,20 +116,28 @@ const NewClient = () => {
             .then(res => {
                 imgPath = res.data.img_url;
                 sigPath = res.data.sig_url;
+                let data = new FormData();
+                for (var key of Object.keys(frmData)) {
+                    data.append(key, frmData[key]);
+                }
+                data.append('image', imgPath);
+                data.append('signature', sigPath);
+                axios.post(`${process.env.REACT_APP_API_URL}client`, data, {headers : {'Authorization' : localStorage.getItem('token'), 'Content-Type' : 'multipart/form-data','Allow-Control-Allow-Origin' : '*',}})
+                    .then(res => {
+                        toast('Client profile added!');
+                        frmRef.current.reset();
+                        closeModal(false);
+                        setIsSubmit(false);
+                        rerunList();
+                    })
+                    .catch(err => {
+                        toast('Something went wrong, please refresh and try again.');
+                        setIsSubmit(false);
+                    });
             })
             .catch(err => {
-                console.log(err)
-                return;
-            });
-        let data = new FormData();
-        for (var key of Object.keys(frmData)) {
-            data.append(key, frmData[key]);
-        }
-        data.append('image', imgPath);
-        data.append('signature', sigPath);
-        await api.post(`client`, data)
-            .then(res => {
-                toast('Client profile added!');
+                toast('Something went wrong, please refresh and try again.');
+                setIsSubmit(false);
             });
     }
 
@@ -166,7 +179,7 @@ const NewClient = () => {
 
     return (
         <div className="new-client">
-            <form className="new-client-form" onSubmit={onSubmitFrm} name="new-client-form" id="new-client-form">
+            <form ref={frmRef} className="new-client-form" onSubmit={onSubmitFrm} name="new-client-form" id="new-client-form">
                 <div className="row">
                     <div className="col-3 new-client-form-field">
                         <TextInput 
@@ -175,7 +188,7 @@ const NewClient = () => {
                             type="text" 
                             className="new-client-text" 
                             name="first_name" id="first_name" 
-                            placeholder="Juan" 
+                            placeholder="Peter" 
                             style={{width: '100%'}} 
                         />
                     </div>
@@ -186,7 +199,7 @@ const NewClient = () => {
                             type="text" 
                             className="new-client-text" 
                             name="middle_name" id="middle_name" 
-                            placeholder="Middle name" 
+                            placeholder="Benjamin" 
                             style={{width: '100%'}} 
                         />
                     </div>
@@ -197,13 +210,13 @@ const NewClient = () => {
                             type="text" 
                             className="new-client-text" 
                             name="last_name" id="last_name" 
-                            placeholder="Dela Cruz" 
+                            placeholder="Parker" 
                             style={{width: '100%'}} 
                         /> 
                     </div>
                     <div className="col-3 new-client-form-field">
                         <TextInput 
-                            inputLabel="Suffix:" 
+                            inputLabel="Suffix: (Put N/A if none)" 
                             onChange={onChangeText} required
                             type="text" 
                             className="new-client-text" 
@@ -246,7 +259,7 @@ const NewClient = () => {
                             type="text"
                             className="new-client-text"
                             name="address" id="address"
-                            placeholder="Line 1 address"
+                            placeholder="20 Ingram St. in Queens"
                             style={{width: '100%'}}
                         />
                     </div>
@@ -445,11 +458,12 @@ const NewClient = () => {
                 <div className="row">
                     <div className="col-12">
                         <Button
-                            text="Save Profile"
+                            text={isSubmit ? "Loading..." : "Save Profile"}
                             name="save_profile" id="save_profile"
-                            icon="save"
+                            icon={isSubmit ? "circle" : "save"}
                             type="submit"
                             style={{marginRight: '5px'}}
+                            disabled={isSubmit}
                         />
                     </div>
                 </div>

@@ -24,7 +24,7 @@ import NewRecord from './pages/Clients/NewRecord';
 import FormGenerator from './pages/FormGenerator/FormGenerator';
 
 //api 
-import api from './api/api';
+import axios from 'axios';
 
 const App = () => {
   let [isLoading, setIsLoading] = React.useState(false);
@@ -40,7 +40,7 @@ const App = () => {
     frmData.append('username', logDetail.username);
     frmData.append('password', logDetail.password);
     try {
-      await api.post('signin', frmData)
+      await axios.post(`${process.env.REACT_APP_API_URL}signin`, frmData, {headers : {'Authorization' : localStorage.getItem('token'), 'Content-Type' : 'multipart/form-data','Allow-Control-Allow-Origin' : '*',}})
         .then(res => {
           toast('Login success!');
           localStorage.setItem('userId', res.data.userId);
@@ -62,19 +62,21 @@ const App = () => {
   }
 
   const logout = async () => {
+    setIsLoading(true);
     setIsAuth(false);
     localStorage.removeItem('userId');
     localStorage.removeItem('token');
+    setIsLoading(false);
   }
 
    React.useEffect(() => {
     setIsLoading(true);
     const validateToken = async () => {
       try {
-        setIsAuth(false);
-        await api.post('validate')
+        await axios.post(`${process.env.REACT_APP_API_URL}validate`, {headers : {'Authorization' : localStorage.getItem('token'), 'Content-Type' : 'multipart/form-data','Allow-Control-Allow-Origin' : '*',}})
           .then(res => {
             localStorage.setItem('userId', res.data.userId);
+            localStorage.setItem('username', res.data.username);
             setIsAuth(true);
             setIsLoading(false);
           })
@@ -120,7 +122,7 @@ const App = () => {
                       <Clients isAuthenticated={isAuth} />
                     } />
                     <Route path="/clients/:clientId" element={
-                      <ViewClient  isAuthenticated={isAuth} />
+                      <ViewClient isAuthenticated={isAuth} />
                     } />
                     <Route path="/clients/records/:clientId/:inputId" element={
                       <ViewRecord isAuthenticated={isAuth} />
@@ -145,6 +147,7 @@ const App = () => {
                   pauseOnFocusLoss
                   draggable
                   pauseOnHover 
+                  theme="dark"
                 />
               </div>
               <div className="col-3 right-bar full-height">
