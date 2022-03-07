@@ -31,7 +31,7 @@ const App = () => {
   let [isAuth, setIsAuth] = React.useState(false);
 
   const login = async (logDetail) => {
-    
+    setIsLoading(true);
     setIsAuth(false);
     localStorage.removeItem('userId');
     localStorage.removeItem('token');
@@ -46,14 +46,17 @@ const App = () => {
           localStorage.setItem('userId', res.data.userId);
           localStorage.setItem('token', `Bearer ${res.data.token}`);
           setIsAuth(true);
+          setIsLoading(false);
         })
         .catch(err => {
           toast(`${err}`);
           setIsAuth(false);
+          setIsLoading(false);
         });
     } catch (error) {
       toast(`${error}`);
       setIsAuth(false);
+      setIsLoading(false);
     }
 
   }
