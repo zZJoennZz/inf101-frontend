@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const UserMenus = () => {
+const UserMenus = ({ isAuthenticated, runLogout }) => {
     const isAdmin = true;
     return (
         <div className="usermenus">
@@ -10,7 +10,7 @@ const UserMenus = () => {
                 <div className="usermenus-welcome">Hello, <span className="usermenus-name">Joenn</span>!</div>
                 <ul className="usermenus-ul">
                     <li className="usermenus-li"><Link to="google.com">Change Password</Link></li>
-                    <li className="usermenus-li"><Link to="google.com">Logout</Link></li>
+                    <li className="usermenus-li"><span onClick={runLogout}>Logout</span></li>
                 </ul>
             </div>
 

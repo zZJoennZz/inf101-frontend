@@ -1,162 +1,120 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-const ViewClient = () => {
+import api from '../../api/api';
 
-    const dummyData = [
-        {
-            'userImg' : 'https://i.postimg.cc/YqDt5jpm/user-img.jpg',
-            'firstName' : 'Joenn',
-            'middleName' : 'Sese',
-            'lastName' : 'Aquilino',
-            'gender' : 1,
-            'birthday' : '14/06/1996',
-            'address' : 'Block 7 Lot 14 Phase 2, Amanda Village, Mabalas-balas',
-            'city' : 'San Rafael',
-            'province' : 'Bulacan',
-            'zipCode' : '3008',
-            'country' : 'Philippines',
-            'contactNumber' : '0929 022 5464',
-            'emailAddress' : 'zzjoennzz@gmail.com',
-            'clientId' : '101-1' 
-        },{
-            'userImg' : 'https://i.postimg.cc/YqDt5jpm/user-img.jpg',
-            'firstName' : 'Ena Lynn',
-            'middleName' : 'Sese',
-            'lastName' : 'Aquilino',
-            'gender' : 2,
-            'birthday' : '05/02/1974',
-            'address' : 'Block 7 Lot 14 Phase 2, San Rafael Village 1, Mabalas-balas',
-            'city' : 'San Rafael',
-            'province' : 'Bulacan',
-            'zipCode' : '3008',
-            'country' : 'Philippines',
-            'contactNumber' : '0929 022 5464',
-            'emailAddress' : 'enalynnsese@gmail.com',
-            'clientId' : '101-2' 
-        },{
-            'userImg' : 'https://i.postimg.cc/YqDt5jpm/user-img.jpg',
-            'firstName' : 'Jewelynn',
-            'middleName' : 'Sese',
-            'lastName' : 'Aquilino',
-            'gender' : 2,
-            'birthday' : '26/05/1999',
-            'address' : 'Block 7 Lot 14 Phase 2, San Rafael Village 1, Mabalas-balas',
-            'city' : 'San Rafael',
-            'province' : 'Bulacan',
-            'zipCode' : '3008',
-            'country' : 'Philippines',
-            'contactNumber' : '0929 022 5464',
-            'emailAddress' : 'jewelynnaquilino@gmail.com',
-            'clientId' : '101-3' 
-        },
-    ];
+import { regions, provinces, cities, barangays } from 'select-philippines-address';
+
+const ViewClient = () => {
+    let [clientDetail, setClientDetail] = React.useState(false);
+
+    let [regionsList, setRegionsList] = React.useState(false);
+    let [provincesList, setProvincesList] = React.useState(false);
+    let [citiesList, setCitiesList] = React.useState(false);
+    let [barangaysList, setBarangaysList] = React.useState(false);
+
     const { clientId } = useParams();
 
-    const results = dummyData.filter(data => data.clientId === clientId);
-
-    const userAddress = results[0].address + ', ' + results[0].city + ', ' + results[0].province + ', ' + results[0].country;
-
+    React.useEffect(() => {
+        const getClient = async () => {
+            await api.get(`client/${clientId}`)
+                .then(res => {
+                    setClientDetail(res.data.data)
+                    regions().then(region => setRegionsList(region))
+                    provinces(res.data.data.region).then(province => setProvincesList(province))
+                    cities(res.data.data.province).then(city => setCitiesList(city))
+                    barangays(res.data.data.city).then(barangay => setBarangaysList(barangay))
+                })
+                .catch(err => setClientDetail(false))
+        }
+        getClient();
+    }, [clientId]);
+    
     return (
         <div className="view-client">
-            <div className="view-client-inner">
-                <div className="row">
-                    <div className="col-12">
-                        <Link to="/clients">{"<"} Back</Link>
-                    </div>                    
-                </div>
-                <div className="row client-info">
-                    <div className="col-6">
-                        <img src={results[0].userImg} alt={results[0].firstName} className="client-img" />
-                    </div>
-
-                    <div className="col-6">
-                        <button className="edit-btn"><i className="fas fa-user-edit"></i></button>
-                    </div>
-                </div>
-                <div className="row client-info">
-                    <div className="col-12">
-                        <div className="client-name">{results[0].firstName + ' ' + results[0].middleName + ' ' + results[0].lastName} <span className="client-gender">{results[0].gender === 1 ? <i className="fas fa-mars" style={{'color': 'skyblue'}}></i> : <i className="fas fa-venus" style={{'color': 'pink'}}></i>} <span className="client-id">{results[0].clientId}</span></span></div>
-                        <div className="client-birthday">{results[0].birthday}</div>
-                    </div>
-                </div>
-
-                <div className="row client-info">
-                    <div className="col-12">
-                        <span className="client-address">
-                            <a href={"https://www.google.com/maps/place/" + userAddress} target="_blank" rel="noreferrer">{userAddress}</a>
-                        </span>
-                    </div>
-                </div>
-
-                <div className="row client-info">
-                    <div className="col-6 client-contact-num">
-                        <i className="fas fa-phone"></i> {results[0].contactNumber}
-                    </div>
-                    <div className="col-6 client-email-address">
-                        <i className="fas fa-envelope"></i> {results[0].emailAddress}
-                    </div>
-                </div>
-
-                <div className="row client-info">
-                    <div className="col-12">
-                        <div className="sec-header">
-                            Maintenance/Medications
+            {
+                !clientDetail ?
+                    <div className="view-client-inner">Loading...</div>
+                :
+                    <div className="view-client-inner">
+                        <div className="row">
+                            <div className="col-12">
+                                <Link to="/clients">{"<"} Back</Link>
+                            </div>                    
                         </div>
-                        <div className="client-main-card">
-                            <div className="client-main-card-inner">
-                                <div className="card-header">
-                                    <span className="client-main-label">Maintenance: </span> Biogesic <span className="date-added">Date added: 21-11-2021</span>
+                        <div className="row client-info">
+                            <div className="col-6">
+                                <img src={process.env.REACT_APP_IMG_URL + clientDetail.image} alt={clientDetail.first_name} className="client-img" />
+                            </div>
+
+                            <div className="col-6">
+                                <button className="edit-btn"><i className="fas fa-user-edit"></i></button>
+                            </div>
+                        </div>
+                        <div className="row client-info">
+                            <div className="col-12">
+                                <div className="client-name">{clientDetail.first_name + ' ' + clientDetail.middle_name + ' ' + clientDetail.last_name} <span className="client-gender">{clientDetail.gender === 1 ? <i className="fas fa-mars" style={{'color': 'skyblue'}}></i> : <i className="fas fa-venus" style={{'color': 'pink'}}></i>} <span className="client-id">{clientDetail.client_id}</span></span></div>
+                                <div className="client-birthday">{clientDetail.birthday}</div>
+                            </div>
+                        </div>
+
+                        <div className="row client-info">
+                            <div className="col-12">
+                                <span className="client-address">
+                                    {
+                                        !regionsList || !provincesList || !citiesList || !barangaysList ?
+                                            'Loading...'
+                                        :
+                                        clientDetail.address + ", " + barangaysList.filter(d => d.brgy_code === clientDetail.barangay)[0].brgy_name + ", " + citiesList.filter(d => d.city_code === clientDetail.city)[0].city_name + ", " + provincesList.filter(d => d.province_code === clientDetail.province)[0].province_name + ", " + regionsList.filter(d => d.region_code === clientDetail.region)[0].region_name
+                                    }
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="row client-info">
+                            <div className="col-6 client-contact-num">
+                                <i className="fas fa-phone"></i> {clientDetail.contact_number}
+                            </div>
+                            <div className="col-6 client-email-address">
+                                <i className="fas fa-envelope"></i> {clientDetail.email_address}
+                            </div>
+                        </div>
+
+                        <div className="row client-info">
+                            <div className="col-12">
+                                <div className="sec-header">
+                                    Maintenance
                                 </div>
-                                <div className="card-body">
-                                    500mg, 3 times a day
+                                <div className="client-main-card">
+                                    <div className="client-main-card-inner">
+                                        <div className="card-body">
+                                            {clientDetail.maintenance}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="client-main-card">
-                            <div className="client-main-card-inner">
-                                <div className="card-header">
-                                    <span className="client-main-label">Maintenance: </span> Biogesic <span className="date-added">Date added: 21-11-2021</span>
-                                </div>
-                                <div className="card-body">
-                                    500mg, 3 times a day
+                        {/* <div className="row records-section">
+                            <div className="col-10">
+                                <div className="sec-header">
+                                    Records
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="client-main-card">
-                            <div className="client-main-card-inner">
-                                <div className="card-header">
-                                    <span className="client-main-label">Maintenance: </span> Biogesic <span className="date-added">Date added: 21-11-2021</span>
-                                </div>
-                                <div className="card-body">
-                                    500mg, 3 times a day
+                            <div className="col-2">
+                                <Link to={"/clients/records/new/" + clientDetail.clientId}><button className="primary-btn" style={{'float' : 'right'}}>Add New</button></Link>
+                            </div>
+                        </div> */}
+                        {/* <div className="row">
+                            <div className="col-12">
+                                <div className="records-card"><button className="primary-btn" style={{'float' : 'right'}}><i className="fas fa-print"></i></button> <Link to={"/clients/records/" + clientDetail.clientId + "/1"}><button className="primary-btn" style={{'float' : 'right'}}>Open</button></Link>
+                                    <div className="records-card-service">myTherapy</div>
+                                    <div className="records-card-date"><span className="records-card-date-text">Treatment/Reading Date:</span> December 12, 2021</div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
-                </div>
-
-                <div className="row records-section">
-                    <div className="col-10">
-                        <div className="sec-header">
-                            Records
-                        </div>
-                    </div>
-                    <div className="col-2">
-                        <Link to={"/clients/records/new/" + results[0].clientId}><button className="primary-btn" style={{'float' : 'right'}}>Add New</button></Link>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-12">
-                        <div className="records-card"><button className="primary-btn" style={{'float' : 'right'}}><i className="fas fa-print"></i></button> <Link to={"/clients/records/" + results[0].clientId + "/1"}><button className="primary-btn" style={{'float' : 'right'}}>Open</button></Link>
-                            <div className="records-card-service">myTherapy</div>
-                            <div className="records-card-date"><span className="records-card-date-text">Treatment/Reading Date:</span> December 12, 2021</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
     )
 }

@@ -19,6 +19,8 @@
   background: #fff;
   padding: 1rem 1.5rem;
   width: 35rem;
+  max-height: 90vh;
+  overflow: auto;
   border-radius: 0.5rem;
 }
 
@@ -50,5 +52,7 @@
 @media screen and (max-width: 600px) {
   .modal-content {
     width: 90%;
+    height: 80vh;
+    overflow: auto;
   }
 }

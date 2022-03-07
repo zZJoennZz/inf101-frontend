@@ -7,7 +7,7 @@ const DropdownSelect = ({inputLabel, name, id, options, selectedValue, defaultOp
                 <option value={0}>{defaultOption}</option>
                 {
                     options.map(d => 
-                        selectedValue === d.value ? <option key={d.value} value={d.value} selected>{d.label}</option>:<option key={d.value} value={d.value}>{d.label}</option>   
+                        selectedValue === d.id ? <option key={d.id} value={d.id} selected>{d.label}</option>:<option key={d.id} value={d.id}>{d.label}</option>   
                     )
                 }
             </select>
