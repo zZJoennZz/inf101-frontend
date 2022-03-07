@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Logo from './components/Logo/Logo';
 import Menu from './components/Menu/Menu';
 import UserMenus from './components/UserMenus/UserMenus';
+import Loading from './components/Loading/Loading';
 
 //pages
 //import Test from './pages/Test';
@@ -26,6 +27,7 @@ import FormGenerator from './pages/FormGenerator/FormGenerator';
 import api from './api/api';
 
 const App = () => {
+  let [isLoading, setIsLoading] = React.useState(false);
   let [isAuth, setIsAuth] = React.useState(false);
 
   const login = async (logDetail) => {
@@ -63,6 +65,7 @@ const App = () => {
   }
 
    React.useEffect(() => {
+    setIsLoading(true);
     const validateToken = async () => {
       try {
         setIsAuth(false);
@@ -70,13 +73,16 @@ const App = () => {
           .then(res => {
             localStorage.setItem('userId', res.data.userId);
             setIsAuth(true);
+            setIsLoading(false);
           })
           .catch(err => {
             setIsAuth(false);
+            setIsLoading(false);
             console.log(err);
           })
       } catch (error) {
         setIsAuth(false);
+        setIsLoading(false);
         console.log(error);
       }
     }
@@ -86,52 +92,63 @@ const App = () => {
   return (
     <div className="App">
       <div className="row">
-        <div className="col-3 left-bar full-height">
-          <Logo />
-          <Menu />
-        </div>
-        <div className="col-6 main-center full-height">
-          <Routes>
-              <Route exact path="/" element={
-                <HomeNotLoggedIn runLogin={login} isAuthenticated={isAuth} />
-              }/>
-              <Route exact path="/home" element={
-                <HomeLoggedIn isAuthenticated={isAuth} />
-              } />
-              <Route path="/clients" element={
-                <Clients isAuthenticated={isAuth} />
-              } />
-              <Route path="/clients/:clientId" element={
-                <ViewClient  isAuthenticated={isAuth} />
-              } />
-              <Route path="/clients/records/:clientId/:inputId" element={
-                <ViewRecord isAuthenticated={isAuth} />
-              } />
-              <Route path="/clients/records/new/:clientId" element={
-                <NewRecord isAuthenticated={isAuth} />
-              } />
-              <Route path="/visits" element={
-                <Visits isAuthenticated={isAuth} />
-              } />
-              <Route path="/generate-form" element={
-                <FormGenerator />
-              } />
-          </Routes>
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover 
-          />
-        </div>
-        <div className="col-3 right-bar full-height">
-          <UserMenus runLogout={logout} isAuthenticated={isAuth} />
-        </div>
+        {
+          isLoading ?
+            <div className="row">
+              <div className="col-12">
+                <Loading />
+              </div>  
+            </div>
+          :
+            <>
+              <div className="col-3 left-bar full-height">
+                <Logo />
+                <Menu />
+              </div>
+              <div className="col-6 main-center full-height">
+                <Routes>
+                    <Route exact path="/" element={
+                      <HomeNotLoggedIn runLogin={login} isAuthenticated={isAuth} />
+                    }/>
+                    <Route exact path="/home" element={
+                      <HomeLoggedIn isAuthenticated={isAuth} />
+                    } />
+                    <Route path="/clients" element={
+                      <Clients isAuthenticated={isAuth} />
+                    } />
+                    <Route path="/clients/:clientId" element={
+                      <ViewClient  isAuthenticated={isAuth} />
+                    } />
+                    <Route path="/clients/records/:clientId/:inputId" element={
+                      <ViewRecord isAuthenticated={isAuth} />
+                    } />
+                    <Route path="/clients/records/new/:clientId" element={
+                      <NewRecord isAuthenticated={isAuth} />
+                    } />
+                    <Route path="/visits" element={
+                      <Visits isAuthenticated={isAuth} />
+                    } />
+                    <Route path="/generate-form" element={
+                      <FormGenerator />
+                    } />
+                </Routes>
+                <ToastContainer
+                  position="top-right"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover 
+                />
+              </div>
+              <div className="col-3 right-bar full-height">
+                <UserMenus runLogout={logout} isAuthenticated={isAuth} />
+              </div>
+            </>
+        }
       </div>
     </div>
   );
