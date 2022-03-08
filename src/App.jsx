@@ -73,7 +73,7 @@ const App = () => {
     setIsLoading(true);
     const validateToken = async () => {
       try {
-        await axios.post(`${process.env.REACT_APP_API_URL}validate`, {headers : {'Authorization' : localStorage.getItem('token'), 'Content-Type' : 'multipart/form-data','Allow-Control-Allow-Origin' : '*',}})
+        await axios.post(`${process.env.REACT_APP_API_URL}validate`, null, {headers : {'Authorization' : localStorage.getItem('token'), 'Content-Type' : 'multipart/form-data','Allow-Control-Allow-Origin' : '*',}})
           .then(res => {
             localStorage.setItem('userId', res.data.userId);
             localStorage.setItem('username', res.data.username);
