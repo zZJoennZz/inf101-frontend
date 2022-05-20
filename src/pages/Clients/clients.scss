@@ -6,7 +6,9 @@ $buttonBgHover: #62baab;
   padding: 0;
 }
 
+
 .clients-inner {
+
   padding: 10px 15px;
 
   h1 {
@@ -38,5 +40,17 @@ $buttonBgHover: #62baab;
 
   .divider {
     margin: 20px 0;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #section-to-print, #section-to-print * {
+    visibility: visible;
+  }
+  #section-to-print {
+    display: block !important;
   }
 }

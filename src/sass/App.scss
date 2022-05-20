@@ -396,6 +396,11 @@ label {
 }
 
 .view-client {
+  .print-btn {
+    font-size: 20px;
+    margin-top: 20px;
+    padding: 10px;
+  }
   .view-client-inner {
     padding: 10px 15px;
     border-bottom: 1px solid $borderColor;
