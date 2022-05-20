@@ -53,4 +53,10 @@ $buttonBgHover: #62baab;
   #section-to-print {
     display: block !important;
   }
+
+  @page 
+  {
+    size: 7in 9.25in;
+    margin: 0mm;
+  }
 }
