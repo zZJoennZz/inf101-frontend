@@ -44,7 +44,7 @@ const ViewClient = ({ isAuthenticated }) => {
         );
         break;
       case "province":
-        await cities(fieldValue).then((cities) => setCitiesList(cities));
+        await cities(fieldValue).then((cits) => setCitiesList(cits));
         break;
       case "city":
         await barangays(fieldValue).then((bgry) => setBarangaysList(bgry));
