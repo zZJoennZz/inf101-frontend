@@ -101,7 +101,7 @@ const ClientInformation = (props) => {
             color: "#7f7f7f",
           }}
         >
-          (To be filled-out by shift101 Representative)
+          (To be filled-out by shift101 Technical/IT Representative)
         </span>
       </div>
       <div className="pos" id="_650:254" style={{ top: 210, left: 620 }}>
