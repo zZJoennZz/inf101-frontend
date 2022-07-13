@@ -22,6 +22,7 @@ import HomeNotLoggedIn from "./pages/Home/HomeNotLoggedIn";
 import HomeLoggedIn from "./pages/Home/HomeLoggedIn";
 import Visits from "./pages/Visits/Visits";
 import NewRecord from "./pages/Clients/NewRecord";
+import ViewVisit from "./pages/Visits/ViewVisit";
 
 import FormGenerator from "./pages/FormGenerator/FormGenerator";
 
@@ -85,7 +86,6 @@ const App = () => {
           .post(`${process.env.REACT_APP_API_URL}validate`, null, {
             headers: {
               Authorization: localStorage.getItem("token"),
-              "Content-Type": "multipart/form-data",
               "Allow-Control-Allow-Origin": "*",
             },
           })
@@ -160,6 +160,10 @@ const App = () => {
                 <Route
                   path="/visits"
                   element={<Visits isAuthenticated={isAuth} />}
+                />
+                <Route
+                  path="visits/view/:clientId"
+                  element={<ViewVisit isAuthenticated={isAuth} />}
                 />
                 <Route path="/generate-form" element={<FormGenerator />} />
                 <Route path="/joenn" element={<ClientInformation />} />
