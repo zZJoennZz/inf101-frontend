@@ -1,33 +1,22 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+
 import "./sass/App.scss";
 
-import { ToastContainer, toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 //components
-import Logo from "./components/Logo/Logo";
-import Menu from "./components/Menu/Menu";
-import UserMenus from "./components/UserMenus/UserMenus";
-import Loading from "./components/Loading/Loading";
 
-import ClientInformation from "./components/Reports/ClientInformation";
+import Loading from "./components/Loading/Loading";
 
 //pages
 //import Test from './pages/Test';
-import Clients from "./pages/Clients/Clients";
-import ViewClient from "./pages/Clients/ViewClient";
-import ViewRecord from "./pages/Clients/ViewRecord";
-import HomeNotLoggedIn from "./pages/Home/HomeNotLoggedIn";
-import HomeLoggedIn from "./pages/Home/HomeLoggedIn";
-import Visits from "./pages/Visits/Visits";
-import NewRecord from "./pages/Clients/NewRecord";
-import ViewVisit from "./pages/Visits/ViewVisit";
-
-import FormGenerator from "./pages/FormGenerator/FormGenerator";
 
 //api
 import axios from "axios";
+import SideBar from "./components/SideBar";
+import CenterContent from "./components/CenterContent";
+import RightBar from "./components/RightBar";
 
 const App = () => {
   let [isLoading, setIsLoading] = React.useState(false);
@@ -119,74 +108,25 @@ const App = () => {
             </div>
           </div>
         ) : (
-          <>
-            <div className="col-3 left-bar full-height">
-              <Logo />
-              <Menu />
-            </div>
-            <div className="col-6 main-center full-height">
-              <Routes>
-                <Route
-                  exact
-                  path="/"
-                  element={
-                    <HomeNotLoggedIn
-                      runLogin={login}
-                      isAuthenticated={isAuth}
-                    />
-                  }
-                />
-                <Route
-                  exact
-                  path="/home"
-                  element={<HomeLoggedIn isAuthenticated={isAuth} />}
-                />
-                <Route
-                  path="/clients"
-                  element={<Clients isAuthenticated={isAuth} />}
-                />
-                <Route
-                  path="/clients/:clientId"
-                  element={<ViewClient isAuthenticated={isAuth} />}
-                />
-                <Route
-                  path="/clients/records/:clientId/:inputId"
-                  element={<ViewRecord isAuthenticated={isAuth} />}
-                />
-                <Route
-                  path="/clients/records/new/:clientId"
-                  element={<NewRecord isAuthenticated={isAuth} />}
-                />
-                <Route
-                  path="/visits"
-                  element={<Visits isAuthenticated={isAuth} />}
-                />
-                <Route
-                  path="visits/view/:clientId"
-                  element={<ViewVisit isAuthenticated={isAuth} />}
-                />
-                <Route path="/generate-form" element={<FormGenerator />} />
-                <Route path="/joenn" element={<ClientInformation />} />
-              </Routes>
-              <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="dark"
-              />
-            </div>
-            <div className="col-3 right-bar full-height">
-              <UserMenus runLogout={logout} isAuthenticated={isAuth} />
-            </div>
-          </>
+          <main className="flex">
+            <SideBar isAuth={isAuth} />
+            <CenterContent isAuth={isAuth} login={login} />
+            <RightBar isAuth={isAuth} logout={logout} />
+          </main>
         )}
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </div>
   );
 };

@@ -2,6 +2,8 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import "./clients.scss";
 
+import { PlusIcon, SearchIcon } from "@heroicons/react/solid";
+
 import { toast } from "react-toastify";
 
 //components
@@ -10,6 +12,7 @@ import Modal from "../../components/Modal/Modal";
 import TextInput from "../../components/FormElements/TextInput";
 import DropdownSelect from "../../components/FormElements/Dropdown";
 import Button from "../../components/FormElements/Button";
+import ClientPagination from "../../components/ClientPagination";
 
 import {
   regions,
@@ -21,8 +24,10 @@ import {
 import axios from "axios";
 
 const Clients = ({ isAuthenticated }) => {
-  let [clientList, setClientList] = React.useState(false);
+  let [clientList, setClientList] = React.useState([]);
   let [openModal, setOpenModal] = React.useState(false);
+  let [currentPage, setCurrentPage] = React.useState(1);
+  let [clientsPerPage, setClientsPerPage] = React.useState(5);
 
   const deleteCt = async (clientId) => {
     let rusure = window.confirm("Are you sure to delete this profile?");
@@ -58,71 +63,118 @@ const Clients = ({ isAuthenticated }) => {
           "Allow-Control-Allow-Origin": "*",
         },
       })
-      .then((res) => (isSub ? setClientList(res.data.data) : null))
+      .then((res) => {
+        if (isSub) {
+          setClientList(res.data.data);
+          setCurrentPage(1);
+        }
+      })
       .catch((err) => (isSub ? setClientList(false) : null));
   };
 
   React.useEffect(() => {
     let isSub = true;
-    getClients(isSub);
+    const getClientsInitial = async () => {
+      await axios
+        .get(`${process.env.REACT_APP_API_URL}client`, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "multipart/form-data",
+            "Allow-Control-Allow-Origin": "*",
+          },
+        })
+        .then((res) => isSub && setClientList(res.data.data))
+        .catch((err) => isSub && setClientList(false));
+    };
+    getClientsInitial();
     return () => (isSub = false);
   }, []);
 
+  const indexOfLastClient = currentPage * clientsPerPage;
+  const indexOfFirstClient = indexOfLastClient - clientsPerPage;
+  const currentClients = clientList.slice(
+    indexOfFirstClient,
+    indexOfLastClient
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
   return (
-    <>
-      {!isAuthenticated ? (
-        <Navigate to="/" />
-      ) : (
-        <div className="clients">
-          <div className="clients-inner">
-            <div className="row">
-              <div className="col-9">
-                <h1>Clients</h1>
-                <h2>Manage your clients</h2>
-              </div>
-              <div className="col-3">
-                <button
-                  className="add-client"
-                  onClick={() => setOpenModal(!openModal)}
-                >
-                  <i className="fas fa-plus-square"></i> Add new
-                </button>
-                <Modal
-                  content={
-                    <NewClient
-                      rerunList={getClients.bind(this, true)}
-                      closeModal={(e) => setOpenModal(e)}
-                    />
-                  }
-                  title="Add new client"
-                  defaultMode={openModal}
-                  onClickToggle={() => setOpenModal(!openModal)}
+    <div className="w-full">
+      <div className="p-2">
+        <div className="mb-3">
+          <button
+            className="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
+            onClick={() => setOpenModal(!openModal)}
+          >
+            <PlusIcon className="inline-block w-5 h-5 md:mr-2" />
+            <p className="hidden md:inline-block font-bold"> Add new</p>
+          </button>
+          <h1 className="text-2xl font-bold text-teal-700">Clients</h1>
+          <p className="italic">Manage clients</p>
+        </div>
+        <div className="flex items-center p-2 md:p-4 bg-gray-100 rounded-full mb-5">
+          <SearchIcon className="w-8 h-8 text-gray-400" />
+          <input
+            type="text"
+            className="w-full border-none outline-none p-2 bg-transparent"
+            placeholder="Search..."
+          />
+        </div>
+        <div className="row">
+          <div className="col-3">
+            <Modal
+              content={
+                <NewClient
+                  rerunList={getClients.bind(this, true)}
+                  closeModal={(e) => setOpenModal(e)}
                 />
-              </div>
-            </div>
-            <hr className="divider" />
-            <input
-              type="text"
-              className="clients-search"
-              placeholder="Search..."
-              style={{ width: "100%" }}
+              }
+              title="Add new client"
+              defaultMode={openModal}
+              onClickToggle={() => setOpenModal(!openModal)}
             />
-            <div className="row clients-list">
-              <div className="col-12">
-                {!clientList ? (
-                  <>Loading...</>
-                ) : (
-                  <ClientList
-                    data={clientList}
-                    deleteClient={deleteCt.bind(this)}
-                  />
-                )}
-              </div>
-            </div>
           </div>
         </div>
-      )}
-    </>
+
+        <div className="row clients-list">
+          <div className="float-right mb-3">
+            <div className="inline-block mr-3 text-sm">Clients per page</div>
+            <select
+              className="p-1 text-sm"
+              onChange={(e) => setClientsPerPage(e.target.value)}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={15}>15</option>
+              <option value={20}>20</option>
+              <option value={25}>25</option>
+            </select>
+          </div>
+          <div
+            className={clientList.length <= clientsPerPage ? "hidden" : "block"}
+          >
+            <ClientPagination
+              clientsPerPage={clientsPerPage}
+              totalClients={clientList.length}
+              paginate={paginate}
+            />
+          </div>
+          <div className="col-12">
+            {!clientList ? (
+              <>Loading...</>
+            ) : (
+              <ClientList
+                data={currentClients}
+                deleteClient={deleteCt.bind(this)}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
