@@ -44,6 +44,7 @@ const App = () => {
           toast("Login success!");
           localStorage.setItem("userId", res.data.userId);
           localStorage.setItem("token", `Bearer ${res.data.token}`);
+          localStorage.setItem("username", res.data.username);
           setIsAuth(true);
           setIsLoading(false);
         })
@@ -60,10 +61,22 @@ const App = () => {
   };
 
   const logout = async () => {
+    let config = {
+      headers: {
+        Authorization: localStorage.getItem("token"),
+        "Allow-Control-Allow-Origin": "*",
+      },
+    };
     setIsLoading(true);
-    setIsAuth(false);
-    localStorage.removeItem("userId");
-    localStorage.removeItem("token");
+
+    await axios
+      .post(`${process.env.REACT_APP_API_URL}signout`, null, config)
+      .then((res) => {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("token");
+        setIsAuth(false);
+      });
+
     setIsLoading(false);
   };
 
