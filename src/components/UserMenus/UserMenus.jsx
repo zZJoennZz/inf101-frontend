@@ -1,34 +1,34 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import { LogoutIcon, UserCircleIcon } from "@heroicons/react/outline";
+
 const UserMenus = ({ isAuthenticated, runLogout }) => {
   const isAdmin = true;
   return (
     <div className="flex-col">
       {isAuthenticated ? (
         <>
-          <div className="bg-gray-100 p-5 rounded-lg mb-5">
-            <img
-              src="https://cdn.onlinewebfonts.com/svg/img_162386.png"
-              alt="Joenn"
-              className="rounded-full h-12 w-12 float-right border-2 border-white shadow-md"
-            />
-            <div className="flex-col text-sm">
+          <div className="bg-gray-100 p-3 rounded-lg mb-5">
+            <UserCircleIcon className="rounded-full h-12 w-12 float-right" />
+            <div className="flex items-center text-sm">
               Hello,{" "}
               <span className="font-bold">
                 {localStorage.getItem("username")}
               </span>
               !
+              <button
+                className="ml-2 p-1 bg-gray-300 text-slate-600 rounded-full hover:bg-gray-400"
+                onClick={runLogout}
+              >
+                <LogoutIcon className="w-4 h-4" />
+              </button>
             </div>
             <ul className="usermenus-ul">
               <li className="usermenus-li">
                 <Link to="google.com">Change Password</Link>
               </li>
-              <li className="usermenus-li">
-                <Link to={0} onClick={runLogout}>
-                  Logout
-                </Link>
-              </li>
+              <li className="usermenus-li"></li>
             </ul>
           </div>
 
