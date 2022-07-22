@@ -5,6 +5,12 @@ import { FolderOpenIcon, TrashIcon } from "@heroicons/react/outline";
 
 const ClientsList = (props) => {
   const { data, deleteClient } = props;
+
+  if (!data) {
+    return (
+      <div className="text-center text-slate-400 italic">No data available</div>
+    );
+  }
   return data.map((e) => (
     <div
       className="bg-gray-100 rounded-full mb-5 p-4 md:p-5 flex items-center border border-slate-300"
@@ -14,7 +20,7 @@ const ClientsList = (props) => {
         <img
           src={process.env.REACT_APP_IMG_URL + e.image}
           alt={e.first_name}
-          className="hidden md:inline-block w-24 h-24 border-4 rounded-full border-cyan-700"
+          className="hidden md:inline-block w-20 h-20 border-4 border-white rounded-full"
         />
       </div>
 
