@@ -26,7 +26,10 @@ const ManageVisitTypes = () => {
 
       axios
         .get(`${process.env.REACT_APP_API_URL}visit_type`, config)
-        .then((res) => isMounted && setVisitTypeList(res.data.data));
+        .then(
+          (res) =>
+            isMounted && setVisitTypeList(res.data.data ? res.data.data : [])
+        );
     };
 
     getVisitType();
