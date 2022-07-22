@@ -26,7 +26,10 @@ const ManageDiscounts = () => {
 
       axios
         .get(`${process.env.REACT_APP_API_URL}discount`, config)
-        .then((res) => isMounted && setDiscountList(res.data.data));
+        .then(
+          (res) =>
+            isMounted && setDiscountList(res.data.data ? res.data.data : [])
+        );
     };
 
     getDiscounts();
