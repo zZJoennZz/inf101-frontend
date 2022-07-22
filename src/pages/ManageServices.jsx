@@ -32,7 +32,10 @@ const ManageServices = () => {
 
       axios
         .get(`${process.env.REACT_APP_API_URL}service`, config)
-        .then((res) => isMounted && setServiceList(res.data.data));
+        .then(
+          (res) =>
+            isMounted && setServiceList(res.data.data ? res.data.data : [])
+        );
     };
 
     getServices();
