@@ -8,11 +8,10 @@ import { toast } from "react-toastify";
 
 //components
 import VisitsList from "../../components/VisitsList/VisitsList";
-import Modal from "../../components/Modal/Modal";
-import TextInput from "../../components/FormElements/TextInput";
-import CheckBox from "../../components/FormElements/CheckBox";
-import Button from "../../components/FormElements/Button";
-import DropdownSelect from "../../components/FormElements/Dropdown";
+import ContentLoading from "../../components/ContentLoading";
+import Modal from "../../components/Modal";
+
+import { PlusIcon, SearchIcon, SaveIcon } from "@heroicons/react/solid";
 
 const Visits = ({ isAuthenticated }) => {
   if (!isAuthenticated) {
@@ -24,10 +23,11 @@ const Visits = ({ isAuthenticated }) => {
 const VisitsContent = () => {
   let [openModal, setOpenModal] = React.useState(false);
   let [visitList, setVisitList] = React.useState([]);
+  let [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     let isMounted = true;
-
+    setLoading(true);
     let config = {
       headers: {
         Authorization: localStorage.getItem("token"),
@@ -39,9 +39,11 @@ const VisitsContent = () => {
       .get(`${process.env.REACT_APP_API_URL}visit`, config)
       .then((res) => {
         if (isMounted) setVisitList(res.data.data);
+        setLoading(false);
       })
       .catch((err) => {
         if (isMounted) setVisitList([]);
+        setLoading(false);
       });
 
     return () => {
@@ -50,36 +52,76 @@ const VisitsContent = () => {
   }, []);
 
   return (
-    <div className="visits">
-      <div className="visits-inner">
-        <div className="row">
-          <div className="col-9">
-            <h1>Visits</h1>
-            <h2>Manage client visits</h2>
-          </div>
-          <div className="col-3">
-            <button
-              className="add-visit"
-              onClick={() => setOpenModal(!openModal)}
-            >
-              <i className="fas fa-plus-square"></i> Add new
-            </button>
-            <Modal
-              content={<AddNewVisit closeModal={(e) => setOpenModal(e)} />}
-              title="Add new visit"
-              defaultMode={openModal}
-              onClickToggle={() => setOpenModal(!openModal)}
-            />
-          </div>
+    <div className="w-full">
+      <div className="p-2">
+        <div className="mb-3">
+          {/* <button
+            className="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
+            onClick={() => setOpenModal(!openModal)}
+          >
+            <PlusIcon className="inline-block w-5 h-5 md:mr-2" /> Add new
+          </button> */}
+          <Modal
+            isOpen={openModal}
+            content={
+              <AddNewVisit
+                runReload={() => setLoading(true)}
+                closeModal={(e) => setOpenModal(e)}
+              />
+            }
+            title="Add new visit"
+            defaultMode={openModal}
+            closeModal={() => setOpenModal(!openModal)}
+            btnClass="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
+            btnText={
+              <>
+                <PlusIcon className="inline-block w-5 h-5 md:mr-2" /> Add new
+              </>
+            }
+          />
+          <h1 className="text-2xl font-bold text-teal-700">Visits</h1>
+          <p className="italic">Manage client visits</p>
         </div>
-        <hr className="divider" />
-        <input type="text" className="clients-search" placeholder="Search..." />
+
+        <div className="flex items-center p-2 md:p-4 bg-gray-100 rounded-full mb-5">
+          <SearchIcon className="w-8 h-8 text-gray-400" />
+          <input
+            type="text"
+            className="w-full border-none outline-none p-2 bg-transparent"
+            placeholder="Search..."
+          />
+        </div>
+
         <div className="row clients-list">
           <div className="col-12">
-            {visitList === undefined || visitList.length === 0 ? (
-              "Loading..."
+            {loading ? (
+              <ContentLoading />
             ) : (
-              <VisitsList data={visitList} />
+              <div className="overflow-x-auto">
+                <table className="table-auto mx-auto">
+                  <thead className="text-left border-b">
+                    <tr>
+                      <th className="w-2/12 pb-2 text-sm uppercase">
+                        Visit Date
+                      </th>
+                      <th className="w-1/12 pb-2 text-sm uppercase">Time In</th>
+                      <th className="w-1/12 pb-2 text-sm uppercase">
+                        Time Out
+                      </th>
+                      <th className="w-5/12 pb-2 text-sm uppercase">Client</th>
+                      <th className="w-2/12 pb-2 text-sm uppercase">
+                        Controls
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <VisitsList
+                      data={visitList}
+                      runReload={() => setLoading(true)}
+                    />
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
@@ -88,7 +130,7 @@ const VisitsContent = () => {
   );
 };
 
-const AddNewVisit = () => {
+const AddNewVisit = ({ runReload, closeModal }) => {
   let visitForm = React.useRef();
   let [frmData, setFrmData] = React.useState([]);
   let [selectedCt, setSelectedCt] = React.useState("");
@@ -211,6 +253,8 @@ const AddNewVisit = () => {
         response.json();
         toast("Visit successfully recorded!");
         visitForm.current.reset();
+        runReload();
+        closeModal(false);
       }
     );
   };
@@ -254,203 +298,261 @@ const AddNewVisit = () => {
   }, []);
 
   return (
-    <div className="new-visit">
-      <form ref={visitForm} onSubmit={saveVisit}>
-        <div className="row form-group-row">
-          <div className="col-12">
-            Select client:
-            <SearchClient selectClient={selectClient} />
+    <div className="p-4">
+      <div className="border-b">
+        <div className="mb-2 text-sm">Search for the client who visited:</div>
+        <SearchClient selectClient={selectClient} />
+      </div>
+      <div className="px-2 pt-2 text-slate-400 italic text-sm">
+        Selected client:
+      </div>
+      <div className="px-4 font-bold text-2xl mb-3">
+        {selectedCt === "" ? "Select first!" : selectedCt}
+      </div>
+      <form
+        ref={visitForm}
+        onSubmit={saveVisit}
+        className={selectedCt === "" ? "hidden" : "block"}
+      >
+        <div className="overflow-y-scroll h-72 w-full mb-3 border p-3 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 space-x-1">
+            <div>
+              <label htmlFor="visit_date">Visit Date</label>
+              <input
+                className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
+                type="date"
+                name="visit_date"
+                id="visit_date"
+                onChange={onChangeText}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="time_in">Time In</label>
+              <input
+                className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
+                type="time"
+                name="time_in"
+                id="time_in"
+                onChange={onChangeText}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="time_out">Time Out</label>
+              <input
+                className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
+                type="time"
+                name="time_out"
+                id="time_out"
+                onChange={onChangeText}
+                required
+              />
+            </div>
           </div>
-        </div>
-        <div className="row form-group-row">
-          <div className="col-12">
-            <strong>Selected Client:</strong> {selectedCt}
-          </div>
-        </div>
-        <div className="row form-group-row">
-          <div className="col-4 new-visit-form-field">
-            <TextInput
-              inputLabel="Visit Date:"
-              onChange={onChangeText}
-              required
-              type="date"
-              className="new-visit-text"
-              name="visit_date"
-              id="visit_date"
-              style={{ width: "100%" }}
-            />
-          </div>
-          <div className="col-4 new-visit-form-field">
-            <TextInput
-              inputLabel="Time in:"
-              onChange={onChangeText}
-              required
-              type="time"
-              className="new-visit-text"
-              name="time_in"
-              id="time_in"
-              style={{ width: "100%" }}
-            />
-          </div>
-          <div className="col-4 new-visit-form-field">
-            <TextInput
-              inputLabel="Time out:"
-              onChange={onChangeText}
-              required
-              type="time"
-              className="new-visit-text"
-              name="time_out"
-              id="time_out"
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
-        <div className="row form-group-row">
-          <div className="col-6 new-visit-form-field">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 space-x-1">
             <div>
               <label>Service:</label>
+
+              <div className="text-left">
+                {servicesList.length >= 1
+                  ? servicesList.map((d) => {
+                      return (
+                        <div key={d.id}>
+                          <input
+                            className="inline-block"
+                            value={d.id}
+                            onChange={servicesCheck.bind(this)}
+                            disabled={
+                              parseInt(d.availability) === 1 ? false : true
+                            }
+                            type="checkbox"
+                            data-amount={d.price}
+                          />{" "}
+                          <span className="inline-block">
+                            {d.service_name +
+                              " " +
+                              (parseInt(d.availability) === 1
+                                ? ""
+                                : "(" + d.not_available_text + ")")}
+                          </span>
+                        </div>
+                      );
+                    })
+                  : ""}
+              </div>
             </div>
-            {servicesList.length >= 1
-              ? servicesList.map((d) => {
-                  return (
-                    <CheckBox
-                      key={d.id}
-                      inputLabel={
-                        d.service_name +
-                        " " +
-                        (parseInt(d.availability) === 1
-                          ? ""
-                          : "(" + d.not_available_text + ")")
-                      }
-                      value={d.id}
-                      onChange={servicesCheck.bind(this)}
-                      disabled={parseInt(d.availability) === 1 ? false : true}
-                      data-amount={d.price}
-                    />
-                  );
-                })
-              : ""}
-          </div>
-          <div className="col-6 new-visit-form-field">
-            {visitType !== undefined ? (
-              <DropdownSelect
-                inputLabel="Visit Type"
-                options={visitType}
-                id="visit_type"
-                name="visit_type"
-                defaultOption="Select"
-                onChange={onChangeText}
-              />
-            ) : (
-              ""
-            )}
-            <TextInput
-              inputLabel="Visit type fee:"
-              onChange={(e) => {
-                setFrmData({ ...frmData, [e.target.name]: e.target.value });
-              }}
-              required
-              type="text"
-              className="new-visit-text"
-              name="visit_type_fee"
-              id="visit_type_fee"
-              style={{ width: "100%" }}
-            />
-            {discountList !== undefined || discountList === [] ? (
-              <div style={{ width: "100%" }}>
+
+            <div>
+              <div className="mb-3">
+                <label htmlFor="visit_type">Visit Type</label>
+                <select
+                  className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
+                  id="visit_type"
+                  name="visit_type"
+                  onChange={onChangeText}
+                >
+                  <option value={0}>Select</option>
+                  {visitType !== undefined
+                    ? visitType.map((vt) => (
+                        <option value={vt.id}>{vt.type_name}</option>
+                      ))
+                    : ""}
+                </select>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="visit_type_fee">Visit Type Fee</label>
+                <input
+                  className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
+                  type="text"
+                  id="visit_type_fee"
+                  name="visit_type_fee"
+                  onChange={onChangeText}
+                />
+              </div>
+              <div className="mb-3">
                 <label htmlFor="discount_type">Discount Type:</label>
                 <select
-                  style={{ maxWidth: "250px" }}
+                  className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
                   name="discount_type"
                   id="discount_type"
                   onChange={onChangeText}
                 >
                   <option value={0}>Select</option>
-                  {discountList.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.discount_name}
-                    </option>
-                  ))}
+                  {discountList &&
+                    discountList.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.discount_name}
+                      </option>
+                    ))}
                 </select>
               </div>
-            ) : (
-              ""
-            )}
-            {parseInt(frmData.discount_type) === 7 ? (
+
+              <div className="mb-3">{getSubTotal()}</div>
+
+              <div className="mb-3">
+                <div className="grid grid-cols-2 space-x-1">
+                  <div>
+                    {userList !== undefined || userList === [] ? (
+                      <div style={{ width: "100%" }}>
+                        <label htmlFor="hd_representative">
+                          shift101 HD Representative:
+                        </label>
+                        <select
+                          className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
+                          name="hd_representative"
+                          id="hd_representative"
+                          onChange={onChangeText}
+                        >
+                          <option value={0}>Select</option>
+                          {userList.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.first_name + " " + d.last_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+
+                  <div>
+                    {userList !== undefined || userList === [] ? (
+                      <div style={{ width: "100%" }}>
+                        <label htmlFor="wc_representative">
+                          wecollab Representative:
+                        </label>
+                        <select
+                          className="w-full text-sm outline-none bg-slate-100 p-2 rounded-md border border-slate-300"
+                          name="wc_representative"
+                          id="wc_representative"
+                          onChange={onChangeText}
+                        >
+                          <option value={0}>Select</option>
+                          {userList.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.first_name + " " + d.last_name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* <div className="row form-group-row">
+            <div className="col-6 new-visit-form-field">
+              <div></div>
+            </div>
+            <div className="col-6 new-visit-form-field">
               <TextInput
-                inputLabel="Custom Discount:"
-                onChange={onChangeText}
+                inputLabel="Visit type fee:"
+                onChange={(e) => {
+                  setFrmData({ ...frmData, [e.target.name]: e.target.value });
+                }}
                 required
                 type="text"
                 className="new-visit-text"
-                name="discount_others"
-                id="discount_others"
+                name="visit_type_fee"
+                id="visit_type_fee"
                 style={{ width: "100%" }}
               />
-            ) : (
-              ""
-            )}
-          </div>
-          <div>
-            <label>Total:</label>
-          </div>
-          <div>{getSubTotal()}</div>
-        </div>
-        <div className="row form-group-row">
-          <div className="col-6 new-visit-form-field">
-            {userList !== undefined || userList === [] ? (
-              <div style={{ width: "100%" }}>
-                <label htmlFor="hd_representative">
-                  shift101 HD Representative:
-                </label>
-                <select
-                  style={{ width: "100%" }}
-                  name="hd_representative"
-                  id="hd_representative"
+              {discountList !== undefined || discountList === [] ? (
+                <div style={{ width: "100%" }}>
+                  <label htmlFor="discount_type">Discount Type:</label>
+                  <select
+                    style={{ maxWidth: "250px" }}
+                    name="discount_type"
+                    id="discount_type"
+                    onChange={onChangeText}
+                  >
+                    <option value={0}>Select</option>
+                    {discountList.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.discount_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                ""
+              )}
+              {parseInt(frmData.discount_type) === 7 ? (
+                <TextInput
+                  inputLabel="Custom Discount:"
                   onChange={onChangeText}
-                >
-                  <option value={0}>Select</option>
-                  {userList.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.first_name + " " + d.last_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
-
-          <div className="col-6 new-visit-form-field">
-            {userList !== undefined || userList === [] ? (
-              <div style={{ width: "100%" }}>
-                <label htmlFor="wc_representative">
-                  wecollab Representative:
-                </label>
-                <select
+                  required
+                  type="text"
+                  className="new-visit-text"
+                  name="discount_others"
+                  id="discount_others"
                   style={{ width: "100%" }}
-                  name="wc_representative"
-                  id="wc_representative"
-                  onChange={onChangeText}
-                >
-                  <option value={0}>Select</option>
-                  {userList.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.first_name + " " + d.last_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
+                />
+              ) : (
+                ""
+              )}
+            </div>
+            <div>
+              <label>Total:</label>
+            </div>
+            <div>{getSubTotal()}</div>
+          </div> */}
         </div>
-        <div className="row form-group-row">
-          <div className="col-12 new-visit-form-field">
-            <Button type="submit" text="Save Visit" icon="save" />
-          </div>
+        <div className="mb-3">
+          <button
+            type="submit"
+            className="bg-cyan-600 text-white py-2 px-3 flex items-center rounded-md hover:bg-cyan-500 font-bold"
+          >
+            <SaveIcon className="w-5 h-5 inline-block mr-2" />
+            Save Visit
+          </button>
         </div>
       </form>
     </div>
@@ -488,18 +590,24 @@ const SearchClient = ({ selectClient }) => {
       <div>
         <input
           type="text"
+          className="w-full p-2 bg-slate-200 rounded-lg mb-2"
           placeholder="Enter name or client ID"
           onChange={(e) => setSearchCt(e.target.value)}
         />{" "}
-        <Button type="button" onClick={runSearchCt} text="Search" />
+        <button
+          className="mb-2 bg-cyan-600 text-white p-2 w-full rounded-md font-bold hover:bg-cyan-500"
+          onClick={runSearchCt}
+        >
+          Search client
+        </button>
       </div>
       <div>
-        <ul style={{ listStylePosition: "inside" }}>
+        <ul className="list-inside mb-2">
           {searchRes.length <= 0
             ? ""
             : searchRes.map((d) => (
                 <li
-                  style={{ cursor: "pointer" }}
+                  className="hover:bg-slate-300 cursor-pointer text-base bg-slate-100 p-1 mb-1 rounded-lg flex items-center"
                   key={d.id}
                   onClick={selectClient.bind(
                     this,
@@ -507,8 +615,12 @@ const SearchClient = ({ selectClient }) => {
                     d.first_name + " " + d.middle_name + " " + d.last_name
                   )}
                 >
-                  ({d.client_id}){" "}
-                  {d.first_name + " " + d.middle_name + " " + d.last_name}
+                  <span className="bg-cyan-600 text-sm p-1 text-white rounded-md mr-2">
+                    {d.client_id}
+                  </span>{" "}
+                  <span className="font-bold text-slate-600">
+                    {d.first_name + " " + d.middle_name + " " + d.last_name}
+                  </span>
                 </li>
               ))}
         </ul>

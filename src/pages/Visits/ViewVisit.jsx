@@ -61,133 +61,125 @@ const VisitDetails = ({ clientId }) => {
   });
 
   return (
-    <div className="view-visit">
-      <div className="inner border-bottom">
+    <div className="p-1 md:p-3">
+      <div className="text-left mb-3">
         <Link to="/visits">{"<"} Back</Link>
       </div>
 
-      <div className="inner border-bottom">
-        <div className="row">
-          <div className="col-10">
-            <h1>
-              {visitDetail[0].first_name} {visitDetail[0].middle_name}{" "}
-              {visitDetail[0].last_name}
-            </h1>
-            <div className="visit-date">
-              <strong>Visit Date:</strong> {visitDetail[0].visit_date}{" "}
-              <strong>Time In:</strong>{" "}
-              {changeTimeFormat(visitDetail[0].time_in)}{" "}
-              <strong>Time Out:</strong>{" "}
-              {changeTimeFormat(visitDetail[0].time_out)}
-            </div>
-            <div className="inner">
-              <div className="smaller">{visitDetail[0].type_name}</div>
-            </div>
+      <div className="border-b pb-2 mb-3">
+        <img
+          src={`${process.env.REACT_APP_IMG_URL}` + visitDetail[0].image}
+          className="w-24 h-24 bg-white rounded-md shadow-md md:float-right"
+          alt={
+            visitDetail[0].first_name +
+            " " +
+            visitDetail[0].middle_name +
+            " " +
+            visitDetail[0].last_name
+          }
+        />
+        <div className="text-sm italic">Client Name:</div>
+        <h1 className="text-xl font-bold">
+          {visitDetail[0].first_name} {visitDetail[0].middle_name}{" "}
+          {visitDetail[0].last_name}
+        </h1>
+        <div className="p-3 text-sm bg-cyan-100 mt-2 rounded-md mb-3">
+          <strong>Visit Date:</strong> {visitDetail[0].visit_date}{" "}
+          <strong>Time In:</strong> {changeTimeFormat(visitDetail[0].time_in)}{" "}
+          <strong>Time Out:</strong> {changeTimeFormat(visitDetail[0].time_out)}
+        </div>
+      </div>
+
+      <div className="mb-3 italic">
+        <small>{visitDetail[0].type_name}</small>
+      </div>
+
+      <div className="p-0 md:p-2">
+        <h2 className="text-lg font-bold">Included Items</h2>
+        <div className="overflow-x-auto border p-2 mb-3">
+          <table className="table-auto mx-auto w-full">
+            <thead>
+              <tr>
+                <th className="text-left pb-1 border-b">Item(s)</th>
+                <th className="text-right pb-1 border-b">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {JSON.parse(visitDetail[0].service_id).map((service) => (
+                <tr key={service}>
+                  <td className="text-left p-1 border-b">
+                    {
+                      servicesList.filter((i) => i.id === parseInt(service))[0]
+                        .service_name
+                    }
+                  </td>
+                  <td className="text-right p-1 border-b">
+                    PHP{" "}
+                    {Number(
+                      servicesList.filter((i) => i.id === parseInt(service))[0]
+                        .price
+                    ).toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <th className="text-left p-1 border-b">Subtotal</th>
+                <td className="text-right p-1 border-b">
+                  PHP {Number(visitDetail[0].subtotal).toFixed(2)}
+                </td>
+              </tr>
+              <tr>
+                <th className="text-left p-1 border-b">
+                  Discount ({visitDetail[0].discount_name}){" "}
+                  {visitDetail[0].discount_discount_amount}
+                  {parseInt(visitDetail[0].discount_type) === 1 ? "%" : ""}
+                </th>
+                <td className="text-right p-1 border-b">
+                  (PHP{" "}
+                  {formatter.format(parseFloat(visitDetail[0].discount_amount))}
+                  )
+                </td>
+              </tr>
+              <tr>
+                <th className="text-left p-1 border-b">Additional Fee</th>
+                <td className="text-right p-1 border-b">
+                  PHP{" "}
+                  {formatter.format(parseFloat(visitDetail[0].visit_type_fee))}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th className="text-left p-1">Total Amount</th>
+                <th className="text-right p-1">
+                  PHP{" "}
+                  {formatter.format(parseFloat(visitDetail[0].total_amount))}
+                </th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div className="mb-3">
+          <strong>Points Generated:</strong> {visitDetail[0].points}
+        </div>
+
+        <div className="mb-3 grid grid-cols-1 md:grid-cols-2">
+          <div className="text-sm">
+            <div className="font-bold">Health Division Representative:</div>
+            {visitDetail[0].hd_first_name} {visitDetail[0].hd_last_name}
           </div>
-          <div className="col-2">
-            <img
-              src={`${process.env.REACT_APP_IMG_URL}` + visitDetail[0].image}
-              className="client-image"
-              alt={
-                visitDetail[0].first_name +
-                " " +
-                visitDetail[0].middle_name +
-                " " +
-                visitDetail[0].last_name
-              }
-            />
+          <div className="text-sm">
+            <div className="font-bold">wecollab Representative:</div>
+            {visitDetail[0].wc_first_name} {visitDetail[0].wc_last_name}
           </div>
         </div>
       </div>
 
       <div className="inner border-bottom">
-        <div className="row">
-          <div className="col-12">
-            <h2>Included Items</h2>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-12">
-            <div className="row inner border-bottom">
-              <div className="col-8">
-                <strong>Item</strong>
-              </div>
-              <div className="col-4 text-end">
-                <strong>Amount</strong>
-              </div>
-            </div>
-            {JSON.parse(visitDetail[0].service_id).map((d) => (
-              <div className="row inner border-bottom" key={d}>
-                <div className="col-8">
-                  {
-                    servicesList.filter((i) => i.id === parseInt(d))[0]
-                      .service_name
-                  }
-                </div>
-                <div className="col-4 text-end">
-                  {Number(
-                    servicesList.filter((i) => i.id === parseInt(d))[0].price
-                  ).toFixed(2)}
-                </div>
-              </div>
-            ))}
-
-            <div className="row inner border-bottom">
-              <div className="col-8">
-                <strong>Subtotal</strong>
-              </div>
-              <div className="col-4 text-end">
-                {Number(visitDetail[0].subtotal).toFixed(2)}
-              </div>
-            </div>
-
-            <div className="row inner border-bottom">
-              <div className="col-8">
-                <strong>Discount</strong> ({visitDetail[0].discount_name}){" "}
-                {visitDetail[0].discount_discount_amount}
-                {parseInt(visitDetail[0].discount_type) === 1 ? "%" : ""}
-              </div>
-              <div className="col-4 text-end">
-                ({formatter.format(parseFloat(visitDetail[0].discount_amount))})
-              </div>
-            </div>
-
-            <div className="row inner border-bottom">
-              <div className="col-8">
-                <strong>Additional Fee</strong>
-              </div>
-              <div className="col-4 text-end">
-                {formatter.format(parseFloat(visitDetail[0].visit_type_fee))}
-              </div>
-            </div>
-
-            <div className="row inner border-bottom">
-              <div className="col-8">
-                <strong>Total Amount</strong>
-              </div>
-              <div className="col-4 text-end">
-                {formatter.format(parseFloat(visitDetail[0].total_amount))}
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="row inner">
-          <div className="col-12 smaller">
-            Points Generated: {visitDetail[0].points}
-          </div>
-        </div>
-
-        <div className="row inner">
-          <div className="col-6 smaller">
-            Health Division Representative: {visitDetail[0].hd_first_name}{" "}
-            {visitDetail[0].hd_last_name}
-          </div>
-          <div className="col-6 smaller">
-            wecollab Representative: {visitDetail[0].wc_first_name}{" "}
-            {visitDetail[0].wc_last_name}
-          </div>
+          <div className="col-6 smaller"></div>
+          <div className="col-6 smaller"></div>
         </div>
       </div>
 

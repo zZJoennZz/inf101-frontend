@@ -13,6 +13,7 @@ import TextInput from "../../components/FormElements/TextInput";
 import DropdownSelect from "../../components/FormElements/Dropdown";
 import Button from "../../components/FormElements/Button";
 import ClientPagination from "../../components/ClientPagination";
+import ContentLoading from "../../components/ContentLoading";
 
 import {
   regions,
@@ -28,6 +29,7 @@ const Clients = ({ isAuthenticated }) => {
   let [openModal, setOpenModal] = React.useState(false);
   let [currentPage, setCurrentPage] = React.useState(1);
   let [clientsPerPage, setClientsPerPage] = React.useState(5);
+  let [loading, setLoading] = React.useState(false);
 
   const deleteCt = async (clientId) => {
     let rusure = window.confirm("Are you sure to delete this profile?");
@@ -55,6 +57,7 @@ const Clients = ({ isAuthenticated }) => {
   };
 
   const getClients = async (isSub) => {
+    setLoading(true);
     await axios
       .get(`${process.env.REACT_APP_API_URL}client`, {
         headers: {
@@ -69,11 +72,13 @@ const Clients = ({ isAuthenticated }) => {
           setCurrentPage(1);
         }
       })
-      .catch((err) => (isSub ? setClientList(false) : null));
+      .catch((err) => (isSub ? setClientList([]) : null));
+    setLoading(false);
   };
 
   React.useEffect(() => {
     let isSub = true;
+    setLoading(isSub);
     const getClientsInitial = async () => {
       await axios
         .get(`${process.env.REACT_APP_API_URL}client`, {
@@ -83,10 +88,17 @@ const Clients = ({ isAuthenticated }) => {
             "Allow-Control-Allow-Origin": "*",
           },
         })
-        .then((res) => isSub && setClientList(res.data.data))
-        .catch((err) => isSub && setClientList(false));
+        .then((res) => {
+          isSub && setClientList(res.data.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          isSub && setClientList(false);
+          setLoading(false);
+        });
     };
     getClientsInitial();
+
     return () => (isSub = false);
   }, []);
 
@@ -143,7 +155,7 @@ const Clients = ({ isAuthenticated }) => {
           <div className="float-right mb-3">
             <div className="inline-block mr-3 text-sm">Clients per page</div>
             <select
-              className="p-1 text-sm"
+              className="p-1 text-sm bg-slate-100 border border-slate-300 rounded-md outline-none"
               onChange={(e) => setClientsPerPage(e.target.value)}
             >
               <option value={5}>5</option>
@@ -163,8 +175,8 @@ const Clients = ({ isAuthenticated }) => {
             />
           </div>
           <div className="col-12">
-            {!clientList ? (
-              <>Loading...</>
+            {loading ? (
+              <ContentLoading />
             ) : (
               <ClientList
                 data={currentClients}

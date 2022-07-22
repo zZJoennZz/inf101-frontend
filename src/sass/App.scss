@@ -220,77 +220,66 @@ a {
 //   }
 // }
 
-input[type="email"] {
-  margin-bottom: 10px;
-  font-size: 13px;
-  padding: 8px;
-  border: solid 1px #c8c8c8;
-  border-radius: 5px;
+// input[type="email"] {
+//   margin-bottom: 10px;
+//   font-size: 13px;
+//   padding: 8px;
+//   border: solid 1px #c8c8c8;
+//   border-radius: 5px;
 
-  &:focus {
-    outline: none;
-  }
-}
+//   &:focus {
+//     outline: none;
+//   }
+// }
 
-input[type="password"] {
-  margin-bottom: 10px;
-  font-size: 13px;
-  padding: 8px;
-  border: solid 1px #c8c8c8;
-  border-radius: 5px;
 
-  &:focus {
-    outline: none;
-  }
-}
+// input[type="date"] {
+//   margin-bottom: 10px;
+//   font-size: 13px;
+//   padding: 7px;
+//   border: solid 1px #c8c8c8;
+//   border-radius: 5px;
 
-input[type="date"] {
-  margin-bottom: 10px;
-  font-size: 13px;
-  padding: 7px;
-  border: solid 1px #c8c8c8;
-  border-radius: 5px;
+//   &:focus {
+//     outline: none;
+//   }
+// }
 
-  &:focus {
-    outline: none;
-  }
-}
+// input[type="time"] {
+//   margin-bottom: 10px;
+//   font-size: 13px;
+//   padding: 7px;
+//   border: solid 1px #c8c8c8;
+//   border-radius: 5px;
 
-input[type="time"] {
-  margin-bottom: 10px;
-  font-size: 13px;
-  padding: 7px;
-  border: solid 1px #c8c8c8;
-  border-radius: 5px;
+//   &:focus {
+//     outline: none;
+//   }
+// }
 
-  &:focus {
-    outline: none;
-  }
-}
+// input[type="file"] {
+//   margin-bottom: 10px;
+//   font-size: 13px;
+//   padding: 7px;
+//   border: solid 1px #c8c8c8;
+//   border-radius: 5px;
 
-input[type="file"] {
-  margin-bottom: 10px;
-  font-size: 13px;
-  padding: 7px;
-  border: solid 1px #c8c8c8;
-  border-radius: 5px;
+//   &:focus {
+//     outline: none;
+//   }
+// }
 
-  &:focus {
-    outline: none;
-  }
-}
+// select {
+//   margin-bottom: 10px;
+//   font-size: 13px;
+//   padding: 8px;
+//   border: solid 1px #c8c8c8;
+//   border-radius: 5px;
 
-select {
-  margin-bottom: 10px;
-  font-size: 13px;
-  padding: 8px;
-  border: solid 1px #c8c8c8;
-  border-radius: 5px;
-
-  &:focus {
-    outline: none;
-  }
-}
+//   &:focus {
+//     outline: none;
+//   }
+// }
 
 .primary-btn {
   color: #236883;
