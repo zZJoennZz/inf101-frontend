@@ -14,7 +14,19 @@ import { toast } from "react-toastify";
 
 import axios from "axios";
 
+import ContentLoading from "../../components/ContentLoading";
+
 import ClientInformation from "../../components/Reports/ClientInformation";
+
+import {
+  PrinterIcon,
+  PencilIcon,
+  SaveIcon,
+  DotsHorizontalIcon,
+  XIcon,
+} from "@heroicons/react/outline";
+import PersonalInformation from "../../components/PersonalInformation";
+import { getAge } from "../../functions/getAge";
 
 const ViewClient = ({ isAuthenticated }) => {
   let [clientDetail, setClientDetail] = React.useState(false);
@@ -59,7 +71,7 @@ const ViewClient = ({ isAuthenticated }) => {
     e.preventDefault();
     let data = new FormData();
     if (isEditing) {
-      for (var key of Object.keys(updated)) {
+      for (let key of Object.keys(updated)) {
         data.append(key, updated[key]);
         setClientDetail({ ...clientDetail, [key]: updated[key] });
       }
@@ -77,20 +89,39 @@ const ViewClient = ({ isAuthenticated }) => {
           }
         )
         .then((res) => {
-          toast("Profile changes saved!");
+          toast(res.data.message);
           setIsEditing(false);
-          setIsSaving(false);
         })
         .catch((error) => {
-          toast("Something went wrong, please refresh and try again.");
+          toast(error);
           setIsEditing(false);
-          setIsSaving(false);
         });
     }
   };
 
+  // const reLoadAddress = (address) => {
+  //   const { region, province, city } = address;
+
+  //   if (region) {
+  //     provinces(region).then((prov) => setProvincesList(prov));
+  //   }
+
+  //   if (province) {
+  //     cities(province).then((cit) => setCitiesList(cit));
+  //   }
+
+  //   if (city) {
+  //     barangays(city).then((brgy) => setBarangaysList(brgy));
+  //   }
+  //   console.log(regionsList);
+  //   console.log(provincesList);
+  //   console.log(citiesList);
+  //   console.log(barangaysList);
+  // };
+
   React.useEffect(() => {
     let isSub = true;
+
     const getClient = async () => {
       await axios
         .get(`${process.env.REACT_APP_API_URL}client/${clientId}`, {
@@ -100,366 +131,430 @@ const ViewClient = ({ isAuthenticated }) => {
             "Allow-Control-Allow-Origin": "*",
           },
         })
-        .then((res) => {
+        .then(async (res) => {
           if (isSub) {
             setClientDetail(res.data.data);
-            regions().then((region) => setRegionsList(region));
-            provinces(res.data.data.region).then((province) =>
+            regions().then((reg) => setRegionsList(reg));
+            await provinces(res.data.data.region).then((province) =>
               setProvincesList(province)
             );
-            cities(res.data.data.province).then((city) => setCitiesList(city));
-            barangays(res.data.data.city).then((barangay) =>
+            await cities(res.data.data.province).then((city) =>
+              setCitiesList(city)
+            );
+            await barangays(res.data.data.city).then((barangay) =>
               setBarangaysList(barangay)
             );
+            if (isSaving) {
+              setIsSaving(false);
+            }
           }
         })
         .catch((err) => setClientDetail(false));
     };
     getClient();
     return () => (isSub = false);
-  }, [clientId]);
+  }, [clientId, isSaving]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
+
+  let frmFieldClassess = {
+    textField:
+      "bg-slate-200 mb-1 md:mb-0 w-full p-2 rounded-md border border-slate-200 outline-none focus:bg-white focus:border-slate-400",
+  };
 
   return (
-    <div className="view-client">
-      {!isAuthenticated ? <Navigate to="/" /> : ""}
+    <div className="p-3">
+      <div>
+        <Link to="/clients">{"<"} Back</Link>
+      </div>
+      <div id="section-to-print" style={{ display: "none" }}>
+        {/* <ClientInformation
+          ctDets={clientDetail}
+          fullAddress={
+            !regionsList || !provincesList || !citiesList || !barangaysList
+              ? "Loading..."
+              : clientDetail.address +
+                ", " +
+                barangaysList.filter(
+                  (d) => d.brgy_code === clientDetail.barangay
+                )[0].brgy_name +
+                ", " +
+                citiesList.filter((d) => d.city_code === clientDetail.city)[0]
+                  .city_name +
+                ", " +
+                provincesList.filter(
+                  (d) => d.province_code === clientDetail.province
+                )[0].province_name +
+                ", " +
+                regionsList.filter(
+                  (d) => d.region_code === clientDetail.region
+                )[0].region_name +
+                ", " +
+                clientDetail.zip_code
+          }
+        /> */}
+      </div>
+      {!clientDetail && <ContentLoading />}
 
-      {!clientDetail ? (
-        <div className="view-client-inner">Loading...</div>
-      ) : (
+      {clientDetail && (
         <div className="view-client-inner">
-          <div className="row">
-            <div className="col-12">
-              <Link to="/clients">{"<"} Back</Link>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-12">
-              <button className="print-btn" onClick={() => window.print()}>
-                <i className="fa-solid fa-print"></i>
-              </button>
-            </div>
-          </div>
-          {isEditing ? (
+          {isEditing && (
             <form onSubmit={onSaveChanges}>
-              <div className="row client-info">
-                <div className="col-6">
+              <div className="p-1 md:p-3">
+                <div className="mb-2">
                   <img
                     src={process.env.REACT_APP_IMG_URL + clientDetail.image}
                     alt={clientDetail.first_name}
-                    className="client-img client-edit"
+                    className="w-24 h-24 bg-white rounded-md border"
                   />
                 </div>
 
-                <div className="col-6">
-                  <button type="submit" className="edit-btn">
-                    {isSaving ? (
-                      "..."
-                    ) : (
-                      <i className="fa-solid fa-floppy-disk"></i>
-                    )}
-                  </button>
-                </div>
-              </div>
-              <div className="row client-info">
-                <div className="col-12 client-form-field">
-                  <TextInput
-                    inputLabel="First Name:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.first_name}
-                    className="new-client-text"
-                    name="first_name"
-                    id="first_name"
-                    style={{ width: "100%" }}
-                  />
-                  <TextInput
-                    inputLabel="Middle Name:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.middle_name}
-                    className="new-client-text"
-                    name="middle_name"
-                    id="middle_name"
-                    style={{ width: "100%" }}
-                  />
-                  <TextInput
-                    inputLabel="Last Name:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.last_name}
-                    className="new-client-text"
-                    name="last_name"
-                    id="last_name"
-                    style={{ width: "100%" }}
-                  />
-                  <TextInput
-                    inputLabel="Suffix:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.suffix}
-                    className="new-client-text"
-                    name="suffix"
-                    id="suffix"
-                    style={{ width: "100%" }}
-                  />
-                  <TextInput
-                    inputLabel="Birthday:"
-                    onChange={onChangeText}
-                    required
-                    type="date"
-                    defaultValue={clientDetail.birthday}
-                    className="new-client-text"
-                    name="birthday"
-                    id="birthday"
-                    style={{ width: "100%" }}
-                  />
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-6 client-form-field">
-                  {regionsList && (
-                    <div>
-                      <label htmlFor="region">Region:</label>
-                      <select
-                        className="new-client-text"
-                        style={{ width: "100%" }}
-                        name="region"
-                        id="region"
-                        onChange={onChangeText}
-                        required
-                      >
-                        <option value={0}>Select Region</option>
-                        {regionsList.map((d) => (
-                          <option
-                            key={d.region_code}
-                            value={d.region_code}
-                            selected={
-                              clientDetail.region === d.region_code
-                                ? true
-                                : false
-                            }
-                          >
-                            {d.region_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                <div className="col-6 client-form-field">
-                  {provincesList && (
-                    <div>
-                      <label htmlFor="province">Province:</label>
-                      <select
-                        className="new-client-text"
-                        style={{ width: "100%" }}
-                        name="province"
-                        id="province"
-                        onChange={onChangeText}
-                        required
-                      >
-                        <option value={0}>Select Province</option>
-                        {provincesList.map((d) => (
-                          <option
-                            key={d.province_code + d.id}
-                            value={d.province_code}
-                            selected={
-                              clientDetail.province === d.province_code
-                                ? true
-                                : false
-                            }
-                          >
-                            {d.province_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-6 client-form-field">
-                  {citiesList && (
-                    <div>
-                      <label htmlFor="city">City:</label>
-                      <select
-                        className="new-client-text"
-                        style={{ width: "100%" }}
-                        name="city"
-                        id="city"
-                        onChange={onChangeText}
-                        required
-                      >
-                        <option value={0}>Select City</option>
-                        {citiesList.map((d) => (
-                          <option
-                            key={d.city_code + d.id}
-                            value={d.city_code}
-                            selected={
-                              clientDetail.city === d.city_code ? true : false
-                            }
-                          >
-                            {d.city_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                <div className="col-6 client-form-field">
-                  {barangaysList && (
-                    <div>
-                      <label htmlFor="province">Barangay:</label>
-                      <select
-                        className="new-client-text"
-                        style={{ width: "100%" }}
-                        name="barangay"
-                        id="barangay"
-                        onChange={onChangeText}
-                        required
-                      >
-                        <option value={0}>Select Barangay</option>
-                        {barangaysList.map((d) => (
-                          <option
-                            key={d.brgy_code + d.id}
-                            value={d.brgy_code}
-                            selected={
-                              clientDetail.barangay === d.brgy_code
-                                ? true
-                                : false
-                            }
-                          >
-                            {d.brgy_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-6 client-form-field">
-                  <TextInput
-                    inputLabel="Contact Number:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.contact_number}
-                    className="new-client-text"
-                    name="contact_number"
-                    id="contact_number"
-                    style={{ width: "100%" }}
-                  />
-                </div>
-                <div className="col-6 client-form-field">
-                  <TextInput
-                    inputLabel="Email Address:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.email_address}
-                    className="new-client-text"
-                    name="email_address"
-                    id="email_address"
-                    style={{ width: "100%" }}
-                  />
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-6 client-form-field">
-                  <TextInput
-                    inputLabel="Facebook:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.facebook}
-                    className="new-client-text"
-                    name="facebook"
-                    id="facebook"
-                    style={{ width: "100%" }}
-                  />
-                </div>
-                <div className="col-6 client-form-field">
-                  <TextInput
-                    inputLabel="Instagram:"
-                    onChange={onChangeText}
-                    required
-                    type="text"
-                    defaultValue={clientDetail.instagram}
-                    className="new-client-text"
-                    name="instagram"
-                    id="instagram"
-                    style={{ width: "100%" }}
-                  />
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-12">
-                  <div className="sec-header">Maintenance</div>
-                  <div className="client-main-card">
-                    <div className="client-main-card-inner">
-                      <div className="card-body">
-                        <TextInput
-                          onChange={onChangeText}
-                          required
-                          type="text"
-                          defaultValue={clientDetail.maintenance}
-                          className="new-client-text"
-                          name="maintenance"
-                          id="maintenance"
-                          style={{ width: "100%" }}
-                        />
-                      </div>
+                <div className="p-3 border rounded-md">
+                  <div className="float-right">
+                    <button
+                      type="submit"
+                      className="p-2 mr-1 bg-cyan-500 text-white rounded-full hover:shadow-lg hover:shadow-slate-300 transition-all ease-in-out"
+                    >
+                      {isSaving && <DotsHorizontalIcon className="w-5 h-5" />}
+                      {!isSaving && <SaveIcon className="w-5 h-5" />}
+                    </button>
+                    <button
+                      className="p-2 bg-red-500 text-white rounded-full hover:shadow-lg hover:shadow-slate-300 transition-all ease-in-out"
+                      onClick={() => setIsEditing(false)}
+                    >
+                      <XIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="text-xs uppercase mb-4">
+                    Personal Information{" "}
+                    <div className="inline-block bg-cyan-600 p-1 rounded-full text-white">
+                      {clientDetail.client_id}
                     </div>
                   </div>
+                  <PersonalInformation
+                    infoTitle="Client Name"
+                    infoValue={
+                      <div className="grid grid-cols-1 md:grid-cols-4 md:space-x-1">
+                        <div>
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="text"
+                            defaultValue={clientDetail.first_name}
+                            className={frmFieldClassess.textField}
+                            placeholder="Enter first name"
+                            name="first_name"
+                            id="first_name"
+                          />
+                        </div>
+                        <div>
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="text"
+                            defaultValue={clientDetail.middle_name}
+                            className={frmFieldClassess.textField}
+                            placeholder="Enter middle name"
+                            name="middle_name"
+                            id="middle_name"
+                          />
+                        </div>
+                        <div>
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="text"
+                            defaultValue={clientDetail.last_name}
+                            className={frmFieldClassess.textField}
+                            name="last_name"
+                            id="last_name"
+                            placeholder="Enter last name"
+                          />
+                        </div>
+                        <div>
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="text"
+                            defaultValue={clientDetail.suffix}
+                            className={frmFieldClassess.textField}
+                            placeholder="Enter suffix"
+                            name="suffix"
+                            id="suffix"
+                          />
+                        </div>
+                      </div>
+                    }
+                  />
+                  <PersonalInformation
+                    infoTitle="Gender"
+                    infoValue={
+                      <select
+                        onChange={onChangeText}
+                        name="gender"
+                        id="gender"
+                        className={frmFieldClassess.textField}
+                        required
+                        defaultValue={clientDetail.gender}
+                      >
+                        <option value={0}>Select</option>
+                        <option value={1}>Male</option>
+                        <option value={2}>Female</option>
+                      </select>
+                    }
+                  />
+                  <PersonalInformation
+                    infoTitle="Birthday"
+                    infoValue={
+                      <input
+                        onChange={onChangeText}
+                        required
+                        type="date"
+                        defaultValue={clientDetail.birthday}
+                        className={frmFieldClassess.textField}
+                        name="birthday"
+                        id="birthday"
+                      />
+                    }
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1">
+                    <PersonalInformation
+                      infoTitle="Region"
+                      infoValue={
+                        regionsList && (
+                          <select
+                            className={frmFieldClassess.textField}
+                            name="region"
+                            id="region"
+                            onChange={onChangeText}
+                            defaultValue={clientDetail.region}
+                            required
+                          >
+                            <option value={0}>Select Region</option>
+                            {regionsList.map((d) => (
+                              <option key={d.region_code} value={d.region_code}>
+                                {d.region_name}
+                              </option>
+                            ))}
+                          </select>
+                        )
+                      }
+                    />
+                    <PersonalInformation
+                      infoTitle="Province"
+                      infoValue={
+                        provincesList && (
+                          <select
+                            className={frmFieldClassess.textField}
+                            name="province"
+                            id="province"
+                            onChange={onChangeText}
+                            defaultValue={clientDetail.province}
+                            required
+                          >
+                            <option value={0}>Select Province</option>
+                            {provincesList.map((d) => (
+                              <option
+                                key={d.province_code + d.id}
+                                value={d.province_code}
+                              >
+                                {d.province_name}
+                              </option>
+                            ))}
+                          </select>
+                        )
+                      }
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1">
+                    <PersonalInformation
+                      infoTitle="City"
+                      infoValue={
+                        citiesList && (
+                          <select
+                            className={frmFieldClassess.textField}
+                            name="city"
+                            id="city"
+                            onChange={onChangeText}
+                            required
+                            defaultValue={clientDetail.city}
+                          >
+                            <option value={0}>Select City</option>
+                            {citiesList.map((d) => (
+                              <option
+                                key={d.city_code + d.id}
+                                value={d.city_code}
+                              >
+                                {d.city_name}
+                              </option>
+                            ))}
+                          </select>
+                        )
+                      }
+                    />
+                    <PersonalInformation
+                      infoTitle="Barangay"
+                      infoValue={
+                        barangaysList && (
+                          <select
+                            className={frmFieldClassess.textField}
+                            name="barangay"
+                            id="barangay"
+                            onChange={onChangeText}
+                            defaultValue={clientDetail.barangay}
+                            required
+                          >
+                            <option value={0}>Select Barangay</option>
+                            {barangaysList.map((d) => (
+                              <option
+                                key={d.brgy_code + d.id}
+                                value={d.brgy_code}
+                              >
+                                {d.brgy_name}
+                              </option>
+                            ))}
+                          </select>
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1">
+                    <div>
+                      <PersonalInformation
+                        infoTitle="Phone Number"
+                        infoValue={
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="text"
+                            defaultValue={clientDetail.contact_number}
+                            className={frmFieldClassess.textField}
+                            name="contact_number"
+                            id="contact_number"
+                          />
+                        }
+                      />
+                    </div>
+                    <div>
+                      <PersonalInformation
+                        infoTitle="Email Address"
+                        infoValue={
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="email"
+                            defaultValue={clientDetail.email_address}
+                            className={frmFieldClassess.textField}
+                            name="email_address"
+                            id="email_address"
+                          />
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1">
+                    <div>
+                      <PersonalInformation
+                        infoTitle="Facebook"
+                        infoValue={
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="text"
+                            defaultValue={clientDetail.facebook}
+                            className={frmFieldClassess.textField}
+                            name="facebook"
+                            id="facebook"
+                          />
+                        }
+                      />
+                    </div>
+                    <div>
+                      <PersonalInformation
+                        infoTitle="Instagram"
+                        infoValue={
+                          <input
+                            onChange={onChangeText}
+                            required
+                            type="text"
+                            defaultValue={clientDetail.instagram}
+                            className={frmFieldClassess.textField}
+                            name="instagram"
+                            id="instagram"
+                          />
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <PersonalInformation
+                    infoTitle="Maintenance"
+                    infoValue={
+                      <TextInput
+                        onChange={onChangeText}
+                        required
+                        type="text"
+                        defaultValue={clientDetail.maintenance}
+                        className={frmFieldClassess.textField}
+                        name="maintenance"
+                        id="maintenance"
+                      />
+                    }
+                  />
                 </div>
               </div>
             </form>
-          ) : (
-            <>
-              <div className="row client-info">
-                <div className="col-6">
-                  <img
-                    src={process.env.REACT_APP_IMG_URL + clientDetail.image}
-                    alt={clientDetail.first_name}
-                    className="client-img"
-                  />
-                </div>
+          )}
 
-                <div className="col-6">
+          {!isEditing && (
+            <div className="p-1 md:p-3">
+              <div className="mb-2">
+                <button
+                  className="float-right p-2 rounded-full bg-slate-200 text-slate-600 hover:bg-slate-600 hover:text-slate-200 transition-all ease-in-out"
+                  onClick={() => window.print()}
+                >
+                  <PrinterIcon className="w-7 h-7" />
+                </button>
+                <img
+                  src={process.env.REACT_APP_IMG_URL + clientDetail.image}
+                  alt={clientDetail.first_name}
+                  className="w-24 h-24 bg-white rounded-md border"
+                />
+              </div>
+
+              <div className="p-3 border rounded-md">
+                <div className="float-right">
                   <button
                     onClick={() => setIsEditing(!isEditing)}
-                    className="edit-btn"
+                    className="p-2 bg-cyan-500 text-white rounded-full hover:shadow-lg hover:shadow-slate-300 transition-all ease-in-out"
                   >
-                    <i className="fas fa-user-edit"></i>
+                    <PencilIcon className="w-5 h-5" />
                   </button>
                 </div>
-              </div>
-              <div className="row client-info">
-                <div className="col-12">
-                  <div className="client-name">
-                    {clientDetail.first_name +
-                      " " +
-                      clientDetail.middle_name +
-                      " " +
-                      clientDetail.last_name}
-                    {clientDetail.suffix === "N/A"
-                      ? ""
-                      : clientDetail.suffix === "NA"
-                      ? ""
-                      : ", " + clientDetail.suffix}{" "}
-                    <span className="client-gender">
+                <div className="text-xs uppercase mb-4">
+                  Personal Information{" "}
+                  <div className="inline-block bg-cyan-600 p-1 rounded-full text-white">
+                    {clientDetail.client_id}
+                  </div>
+                </div>
+                <PersonalInformation
+                  infoTitle="Client Name"
+                  infoValue={
+                    <>
+                      {clientDetail.first_name +
+                        " " +
+                        clientDetail.middle_name +
+                        " " +
+                        clientDetail.last_name}
+                      {clientDetail.suffix === "N/A" ||
+                      clientDetail.suffix === "NA"
+                        ? ""
+                        : ", " + clientDetail.suffix}{" "}
                       {clientDetail.gender === 1 ? (
                         <i
                           className="fas fa-mars"
@@ -470,110 +565,117 @@ const ViewClient = ({ isAuthenticated }) => {
                           className="fas fa-venus"
                           style={{ color: "pink" }}
                         ></i>
-                      )}{" "}
-                      <span className="client-id">
-                        {clientDetail.client_id}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="client-birthday">{clientDetail.birthday}</div>
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-12">
-                  <span className="client-address">
-                    {!regionsList ||
-                    !provincesList ||
-                    !citiesList ||
-                    !barangaysList
-                      ? "Loading..."
-                      : clientDetail.address +
-                        ", " +
-                        barangaysList.filter(
-                          (d) => d.brgy_code === clientDetail.barangay
-                        )[0].brgy_name +
-                        ", " +
-                        citiesList.filter(
-                          (d) => d.city_code === clientDetail.city
-                        )[0].city_name +
-                        ", " +
-                        provincesList.filter(
-                          (d) => d.province_code === clientDetail.province
-                        )[0].province_name +
-                        ", " +
-                        regionsList.filter(
-                          (d) => d.region_code === clientDetail.region
-                        )[0].region_name}
-                  </span>
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-6 client-contact-num">
-                  <i className="fas fa-phone"></i> {clientDetail.contact_number}
-                </div>
-                <div className="col-6 client-email-address">
-                  <i className="fas fa-envelope"></i>{" "}
-                  {clientDetail.email_address}
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-6">
-                  <i className="fa-brands fa-facebook"></i>{" "}
-                  {clientDetail.facebook}
-                </div>
-                <div className="col-6">
-                  <i className="fa-brands fa-instagram"></i>{" "}
-                  {clientDetail.instagram}
-                </div>
-              </div>
-
-              <div className="row client-info">
-                <div className="col-12">
-                  <div className="sec-header">Maintenance</div>
-                  <div className="client-main-card">
-                    <div className="client-main-card-inner">
-                      <div className="card-body">
-                        {clientDetail.maintenance}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="section-to-print" style={{ display: "none" }}>
-                <ClientInformation
-                  ctDets={clientDetail}
-                  fullAddress={
-                    !regionsList ||
-                    !provincesList ||
-                    !citiesList ||
-                    !barangaysList
-                      ? "Loading..."
-                      : clientDetail.address +
-                        ", " +
-                        barangaysList.filter(
-                          (d) => d.brgy_code === clientDetail.barangay
-                        )[0].brgy_name +
-                        ", " +
-                        citiesList.filter(
-                          (d) => d.city_code === clientDetail.city
-                        )[0].city_name +
-                        ", " +
-                        provincesList.filter(
-                          (d) => d.province_code === clientDetail.province
-                        )[0].province_name +
-                        ", " +
-                        regionsList.filter(
-                          (d) => d.region_code === clientDetail.region
-                        )[0].region_name +
-                        ", " +
-                        clientDetail.zip_code
+                      )}
+                    </>
                   }
                 />
+                <PersonalInformation
+                  infoTitle="Birthday"
+                  infoValue={
+                    clientDetail.birthday +
+                    " (" +
+                    getAge(clientDetail.birthday) +
+                    " yrs)"
+                  }
+                />
+                {!isSaving && (
+                  <PersonalInformation
+                    infoTitle="Full Address"
+                    infoValue={
+                      !regionsList ||
+                      !provincesList ||
+                      !citiesList ||
+                      !barangaysList
+                        ? "Loading..."
+                        : clientDetail.address +
+                          ", " +
+                          barangaysList.filter(
+                            (d) => d.brgy_code === clientDetail.barangay
+                          )[0].brgy_name +
+                          ", " +
+                          citiesList.filter(
+                            (d) => d.city_code === clientDetail.city
+                          )[0].city_name +
+                          ", " +
+                          provincesList.filter(
+                            (d) => d.province_code === clientDetail.province
+                          )[0].province_name +
+                          ", " +
+                          regionsList.filter(
+                            (d) => d.region_code === clientDetail.region
+                          )[0].region_name
+                    }
+                  />
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1">
+                  <div>
+                    <PersonalInformation
+                      infoTitle="Phone Number"
+                      infoValue={clientDetail.contact_number}
+                    />
+                  </div>
+                  <div>
+                    <PersonalInformation
+                      infoTitle="Email Address"
+                      infoValue={clientDetail.email_address}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1">
+                  <div>
+                    <PersonalInformation
+                      infoTitle="Facebook"
+                      infoValue={clientDetail.facebook}
+                    />
+                  </div>
+                  <div>
+                    <PersonalInformation
+                      infoTitle="Instagram"
+                      infoValue={clientDetail.instagram}
+                    />
+                  </div>
+                </div>
+
+                <PersonalInformation
+                  infoTitle="Maintenance"
+                  infoValue={clientDetail.maintenance}
+                />
               </div>
-            </>
+              <div id="section-to-print" style={{ display: "none" }}>
+                {!isSaving && (
+                  <ClientInformation
+                    ctDets={clientDetail}
+                    fullAddress={
+                      !regionsList ||
+                      !provincesList ||
+                      !citiesList ||
+                      !barangaysList
+                        ? "Loading..."
+                        : clientDetail.address +
+                          ", " +
+                          barangaysList.filter(
+                            (d) => d.brgy_code === clientDetail.barangay
+                          )[0].brgy_name +
+                          ", " +
+                          citiesList.filter(
+                            (d) => d.city_code === clientDetail.city
+                          )[0].city_name +
+                          ", " +
+                          provincesList.filter(
+                            (d) => d.province_code === clientDetail.province
+                          )[0].province_name +
+                          ", " +
+                          regionsList.filter(
+                            (d) => d.region_code === clientDetail.region
+                          )[0].region_name +
+                          ", " +
+                          clientDetail.zip_code
+                    }
+                  />
+                )}
+              </div>
+            </div>
           )}
 
           {/* <div className="row records-section">

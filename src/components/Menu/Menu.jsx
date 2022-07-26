@@ -14,7 +14,7 @@ const Menu = ({ isAuth }) => {
 
   const activeLink = "text-red-700 bg-gray-200 scale-95 " + inActiveLink;
   return (
-    <div className="menu">
+    <nav className="menu">
       {isAuth && (
         <>
           <NavLink
@@ -47,7 +47,7 @@ const Menu = ({ isAuth }) => {
           <span className="hidden md:inline-block">Login</span>
         </NavLink>
       )}
-    </div>
+    </nav>
   );
 };
 

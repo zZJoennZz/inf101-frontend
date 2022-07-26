@@ -12,6 +12,7 @@ import ManageObjects from "../pages/ManageObjects";
 import ManageServices from "../pages/ManageServices";
 import ManageVisitTypes from "../pages/ManageVisitTypes";
 import ManageDiscounts from "../pages/ManageDiscounts";
+import ServiceReports from "../pages/ServiceReports";
 
 const CenterContent = ({ isAuth, login }) => {
   return (
@@ -65,7 +66,11 @@ const CenterContent = ({ isAuth, login }) => {
           />
           <Route
             path="/manage-objects/discounts"
-            element={<ManageDiscounts />}
+            element={<ManageDiscounts isAuthenticated={isAuth} />}
+          />
+          <Route
+            path="/manage-objects/service-reports"
+            element={<ServiceReports isAuthenticated={isAuth} />}
           />
         </Routes>
       </div>

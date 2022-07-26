@@ -31,9 +31,14 @@ const VisitsList = (props) => {
     if (confirmDelete) {
       await axios
         .delete(`${process.env.REACT_APP_API_URL}visit/${visitId}`, config)
-        .then((res) => alert(res.data.message))
-        .catch((error) => alert(error));
-      runReload();
+        .then((res) => {
+          runReload();
+          alert(res.data.message);
+        })
+        .catch((error) => {
+          alert(error);
+          runReload();
+        });
     }
   };
 
@@ -49,17 +54,28 @@ const VisitsList = (props) => {
 
   return data.map((e) => (
     <tr className="border-b" key={e.id}>
-      <td className="py-3">{e.visit_date}</td>
-      <td className="py-3">{convertTime(e.time_in)}</td>
-      <td className="py-3">{convertTime(e.time_out)}</td>
       <td className="py-3">
-        {e.first_name + " " + e.middle_name + " " + e.last_name}
+        <strong>{e.visit_date}</strong>{" "}
+        <div className="text-xs italic">
+          {convertTime(e.time_in)} - {convertTime(e.time_out)}
+        </div>
+      </td>
+      <td className="py-3 pl-2">
+        <span className="font-bold">
+          <Link to={"/visits/view/" + e.id}>
+            <div className="mr-1 inline-block text-xs bg-slate-600 p-1 text-white rounded-full">
+              {e.client_id}
+            </div>
+
+            {e.first_name + " " + e.middle_name + " " + e.last_name}
+          </Link>
+        </span>{" "}
       </td>
       <td className="py-3 flex items-center">
-        <button className="mr-2 py-1 px-2 bg-cyan-600 rounded-md hover:bg-cyan-500">
+        <button className="mr-1 font-bold py-1 px-2 bg-slate-400 hover:bg-slate-200 rounded-md">
           <Link
             to={"/visits/view/" + e.id}
-            className="text-white flex items-center hover:text-slate-100"
+            className="text-white flex items-center hover:text-slate-600"
           >
             <FolderOpenIcon className="mr-2 w-4 h-4" />
             View

@@ -19,7 +19,10 @@ const Modal = ({
         }`}
         id="my-modal"
       >
-        <div className="bg-white w-11/12 md:w-2/3 rounded-2xl mx-auto shadow-lg shadow-slate-400">
+        <div
+          className="bg-white w-11/12 md:w-2/3 rounded-2xl mx-auto overflow-y-auto shadow-lg shadow-slate-400"
+          style={{ maxHeight: "95%" }}
+        >
           <div className="border-b">
             <div className="p-4 md:py-5 md:px-5 font-bold">
               {title}

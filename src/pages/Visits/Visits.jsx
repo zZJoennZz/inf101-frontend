@@ -24,6 +24,7 @@ const VisitsContent = () => {
   let [openModal, setOpenModal] = React.useState(false);
   let [visitList, setVisitList] = React.useState([]);
   let [loading, setLoading] = React.useState(false);
+  let [reloadPage, setReloadPage] = React.useState(0);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -49,7 +50,7 @@ const VisitsContent = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [reloadPage]);
 
   return (
     <div className="w-full">
@@ -65,12 +66,11 @@ const VisitsContent = () => {
             isOpen={openModal}
             content={
               <AddNewVisit
-                runReload={() => setLoading(true)}
+                runReload={() => setReloadPage(reloadPage + 1)}
                 closeModal={(e) => setOpenModal(e)}
               />
             }
             title="Add new visit"
-            defaultMode={openModal}
             closeModal={() => setOpenModal(!openModal)}
             btnClass="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
             btnText={
@@ -98,17 +98,13 @@ const VisitsContent = () => {
               <ContentLoading />
             ) : (
               <div className="overflow-x-auto">
-                <table className="table-auto mx-auto">
+                <table className="table-auto mx-auto min-w-full">
                   <thead className="text-left border-b">
                     <tr>
-                      <th className="w-2/12 pb-2 text-sm uppercase">
-                        Visit Date
+                      <th className="w-3/12 pb-2 text-sm uppercase">
+                        Visit Detail
                       </th>
-                      <th className="w-1/12 pb-2 text-sm uppercase">Time In</th>
-                      <th className="w-1/12 pb-2 text-sm uppercase">
-                        Time Out
-                      </th>
-                      <th className="w-5/12 pb-2 text-sm uppercase">Client</th>
+                      <th className="w-7/12 pb-2 text-sm uppercase">Client</th>
                       <th className="w-2/12 pb-2 text-sm uppercase">
                         Controls
                       </th>
@@ -117,7 +113,7 @@ const VisitsContent = () => {
                   <tbody>
                     <VisitsList
                       data={visitList}
-                      runReload={() => setLoading(true)}
+                      runReload={() => setReloadPage(reloadPage + 1)}
                     />
                   </tbody>
                 </table>
@@ -396,7 +392,9 @@ const AddNewVisit = ({ runReload, closeModal }) => {
                   <option value={0}>Select</option>
                   {visitType !== undefined
                     ? visitType.map((vt) => (
-                        <option value={vt.id}>{vt.type_name}</option>
+                        <option key={vt.id} value={vt.id}>
+                          {vt.type_name}
+                        </option>
                       ))
                     : ""}
                 </select>

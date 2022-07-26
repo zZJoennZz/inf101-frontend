@@ -1,6 +1,8 @@
 import React from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import axios from "axios";
+// import ReportMyBody from "../../components/Reports/ReportMyBody";
+import { callReport } from "../../functions/callReport";
 
 const ViewVisit = ({ isAuthenticated }) => {
   let { clientId } = useParams();
@@ -15,6 +17,7 @@ const ViewVisit = ({ isAuthenticated }) => {
 const VisitDetails = ({ clientId }) => {
   let [visitDetail, setVisitDetail] = React.useState([]);
   let [servicesList, setServicesList] = React.useState([]);
+  let [reportsList, setReportsList] = React.useState([]);
 
   const changeTimeFormat = (timeVar) => {
     let dTimeVar = new Date("1970-01-01 " + timeVar);
@@ -39,7 +42,10 @@ const VisitDetails = ({ clientId }) => {
     axios
       .get(`${process.env.REACT_APP_API_URL}visit/${clientId}`, config)
       .then((res) => {
-        if (isMounted) setVisitDetail(res.data.data);
+        if (isMounted) {
+          setVisitDetail(res.data.data);
+          setReportsList(res.data.reports);
+        }
       });
 
     axios.get(`${process.env.REACT_APP_API_URL}service`, config).then((res) => {
@@ -83,7 +89,7 @@ const VisitDetails = ({ clientId }) => {
           {visitDetail[0].first_name} {visitDetail[0].middle_name}{" "}
           {visitDetail[0].last_name}
         </h1>
-        <div className="p-3 text-sm bg-cyan-100 mt-2 rounded-md mb-3">
+        <div className="p-3 text-sm bg-slate-100 mt-2 rounded-md mb-3">
           <strong>Visit Date:</strong> {visitDetail[0].visit_date}{" "}
           <strong>Time In:</strong> {changeTimeFormat(visitDetail[0].time_in)}{" "}
           <strong>Time Out:</strong> {changeTimeFormat(visitDetail[0].time_out)}
@@ -183,10 +189,32 @@ const VisitDetails = ({ clientId }) => {
         </div>
       </div>
 
-      <div className="row border-bottom">
-        <div className="inner">
-          <h2>Reports</h2>
+      <div className="p-2">
+        <div className="border-b pb-1 mb-3">
+          <h2 className="text-lg font-bold">Reports</h2>
         </div>
+        {reportsList.length <= 0 && (
+          <div className="text-center text-slate-400 italic">
+            No reports available for the services availed.
+          </div>
+        )}
+        {reportsList.map((report) => (
+          <div key={report.id}>
+            {/* {report.service_report_id === 5 && (
+              <ReportMyBody
+                visitId={visitDetail[0].id}
+                reportId={report.service_report_id}
+                clientId={visitDetail[0].client}
+              />
+            )} */}
+            {callReport(
+              report.form_name,
+              visitDetail[0].id,
+              report.service_report_id,
+              visitDetail[0].client
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

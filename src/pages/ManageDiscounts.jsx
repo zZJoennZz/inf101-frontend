@@ -1,13 +1,13 @@
 import React from "react";
 import axios from "axios";
 
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 import { PlusIcon, TrashIcon, FolderOpenIcon } from "@heroicons/react/solid";
 
 import { ArrowCircleLeftIcon } from "@heroicons/react/outline";
 
-const ManageDiscounts = () => {
+const ManageDiscounts = ({ isAuthenticated }) => {
   let [pageMode, setPageMode] = React.useState("listPage");
   let [pageReload, setPageReload] = React.useState(0);
   let [selectedDiscount, setSelectedDiscount] = React.useState(0);
@@ -38,6 +38,10 @@ const ManageDiscounts = () => {
       isMounted = false;
     };
   }, [pageMode, pageReload]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
 
   if (pageMode === "listPage") {
     return (

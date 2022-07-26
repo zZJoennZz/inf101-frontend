@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 import {
   PlusIcon,
@@ -13,7 +13,7 @@ import {
 
 import { ArrowCircleLeftIcon } from "@heroicons/react/outline";
 
-const ManageServices = () => {
+const ManageServices = ({ isAuthenticated }) => {
   let [pageMode, setPageMode] = React.useState("listPage");
   let [pageReload, setPageReload] = React.useState(0);
   let [selectedService, setSelectedService] = React.useState(0);
@@ -44,6 +44,10 @@ const ManageServices = () => {
       isMounted = false;
     };
   }, [pageMode, pageReload]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
 
   if (pageMode === "listPage") {
     return (

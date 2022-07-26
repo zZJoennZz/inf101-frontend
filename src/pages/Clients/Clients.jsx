@@ -3,15 +3,13 @@ import { Navigate } from "react-router-dom";
 import "./clients.scss";
 
 import { PlusIcon, SearchIcon } from "@heroicons/react/solid";
+import { SaveAsIcon, DotsHorizontalIcon } from "@heroicons/react/outline";
 
 import { toast } from "react-toastify";
 
 //components
 import ClientList from "../../components/ClientsList/ClientsList";
-import Modal from "../../components/Modal/Modal";
-import TextInput from "../../components/FormElements/TextInput";
-import DropdownSelect from "../../components/FormElements/Dropdown";
-import Button from "../../components/FormElements/Button";
+import Modal from "../../components/Modal";
 import ClientPagination from "../../components/ClientPagination";
 import ContentLoading from "../../components/ContentLoading";
 
@@ -30,6 +28,7 @@ const Clients = ({ isAuthenticated }) => {
   let [currentPage, setCurrentPage] = React.useState(1);
   let [clientsPerPage, setClientsPerPage] = React.useState(5);
   let [loading, setLoading] = React.useState(false);
+  let [reloadPage, setReloadPage] = React.useState(0);
 
   const deleteCt = async (clientId) => {
     let rusure = window.confirm("Are you sure to delete this profile?");
@@ -89,18 +88,22 @@ const Clients = ({ isAuthenticated }) => {
           },
         })
         .then((res) => {
-          isSub && setClientList(res.data.data);
-          setLoading(false);
+          if (isSub) {
+            setClientList(res.data.data);
+            setLoading(false);
+          }
         })
         .catch((err) => {
-          isSub && setClientList(false);
-          setLoading(false);
+          if (isSub) {
+            setClientList(false);
+            setLoading(false);
+          }
         });
     };
     getClientsInitial();
 
     return () => (isSub = false);
-  }, []);
+  }, [reloadPage]);
 
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
@@ -117,13 +120,23 @@ const Clients = ({ isAuthenticated }) => {
     <div className="w-full">
       <div className="p-2">
         <div className="mb-3">
-          <button
-            className="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
-            onClick={() => setOpenModal(!openModal)}
-          >
-            <PlusIcon className="inline-block w-5 h-5 md:mr-2" />
-            <p className="hidden md:inline-block font-bold"> Add new</p>
-          </button>
+          <Modal
+            isOpen={openModal}
+            content={
+              <NewClient
+                rerunList={() => setReloadPage(reloadPage + 1)}
+                closeModal={(e) => setOpenModal(e)}
+              />
+            }
+            title="Add new client"
+            closeModal={() => setOpenModal(!openModal)}
+            btnClass="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
+            btnText={
+              <>
+                <PlusIcon className="inline-block w-5 h-5 md:mr-2" /> Add new
+              </>
+            }
+          />
           <h1 className="text-2xl font-bold text-teal-700">Clients</h1>
           <p className="italic">Manage clients</p>
         </div>
@@ -136,19 +149,7 @@ const Clients = ({ isAuthenticated }) => {
           />
         </div>
         <div className="row">
-          <div className="col-3">
-            <Modal
-              content={
-                <NewClient
-                  rerunList={getClients.bind(this, true)}
-                  closeModal={(e) => setOpenModal(e)}
-                />
-              }
-              title="Add new client"
-              defaultMode={openModal}
-              onClickToggle={() => setOpenModal(!openModal)}
-            />
-          </div>
+          <div className="col-3"></div>
         </div>
 
         <div className="row clients-list">
@@ -217,7 +218,7 @@ const NewClient = ({ closeModal, rerunList }) => {
         imgPath = res.data.img_url;
         sigPath = res.data.sig_url;
         let data = new FormData();
-        for (var key of Object.keys(frmData)) {
+        for (let key of Object.keys(frmData)) {
           data.append(key, frmData[key]);
         }
         data.append("image", imgPath);
@@ -238,12 +239,12 @@ const NewClient = ({ closeModal, rerunList }) => {
             rerunList();
           })
           .catch((err) => {
-            toast("Something went wrong, please refresh and try again.");
+            toast(err);
             setIsSubmit(false);
           });
       })
       .catch((err) => {
-        toast("Something went wrong, please refresh and try again.");
+        toast(err);
         setIsSubmit(false);
       });
   };
@@ -284,125 +285,148 @@ const NewClient = ({ closeModal, rerunList }) => {
   ];
 
   React.useEffect(() => {
-    regions().then((region) => setRegionsList(region));
+    let isMounted = true;
+    regions().then((region) => {
+      if (isMounted) {
+        setRegionsList(region);
+      }
+    });
+    return () => (isMounted = false);
   }, []);
 
+  let frmFieldClassess = {
+    textField:
+      "bg-slate-200 mb-1 md:mb-0 w-full p-2 rounded-md border border-slate-200 outline-none focus:bg-white focus:border-slate-400",
+  };
+
   return (
-    <div className="new-client">
+    <div className="p-3">
       <form
         ref={frmRef}
-        className="new-client-form"
         onSubmit={onSubmitFrm}
         name="new-client-form"
         id="new-client-form"
       >
-        <div className="row">
-          <div className="col-3 new-client-form-field">
-            <TextInput
-              inputLabel="First Name:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="first_name"
-              id="first_name"
-              placeholder="Peter"
-              style={{ width: "100%" }}
-            />
+        <div style={{ maxHeight: "500px" }} className="overflow-y-auto mb-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 md:space-x-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="first_name" className="form-label-required">
+                First Name:
+              </label>
+              <input
+                type="text"
+                name="first_name"
+                id="first_name"
+                placeholder="Enter first name"
+                className={frmFieldClassess.textField}
+                onChange={onChangeText}
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="middle_name" className="form-label-required">
+                Middle Name:
+              </label>
+              <input
+                type="text"
+                name="middle_name"
+                id="middle_name"
+                placeholder="Enter middle name"
+                className={frmFieldClassess.textField}
+                onChange={onChangeText}
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="last_name" className="form-label-required">
+                Last Name:
+              </label>
+              <input
+                type="text"
+                name="last_name"
+                id="last_name"
+                placeholder="Enter last name"
+                className={frmFieldClassess.textField}
+                onChange={onChangeText}
+                required
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="suffix" className="form-label-required">
+                Suffix:
+              </label>
+              <input
+                type="text"
+                name="suffix"
+                id="suffix"
+                placeholder="Enter suffix"
+                className={frmFieldClassess.textField}
+                onChange={onChangeText}
+                required
+              />
+            </div>
           </div>
-          <div className="col-3 new-client-form-field">
-            <TextInput
-              inputLabel="Middle Name:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="middle_name"
-              id="middle_name"
-              placeholder="Benjamin"
-              style={{ width: "100%" }}
-            />
-          </div>
-          <div className="col-3 new-client-form-field">
-            <TextInput
-              inputLabel="Last Name:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="last_name"
-              id="last_name"
-              placeholder="Parker"
-              style={{ width: "100%" }}
-            />
-          </div>
-          <div className="col-3 new-client-form-field">
-            <TextInput
-              inputLabel="Suffix: (Put N/A if none)"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="suffix"
-              id="suffix"
-              placeholder="e.g. Jr."
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
 
-        <div className="row">
-          <div className="col-5 new-client-form-field">
-            <DropdownSelect
-              inputLabel="Gender:"
-              onChange={onChangeText}
-              required
-              className="new-client-select"
-              name="gender"
-              id="gender"
-              options={genders}
-              style={{ width: "100%" }}
-              defaultOption="Select Gender"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="gender" className="form-label-required">
+                Gender:
+              </label>
+              <select
+                name="gender"
+                id="gender"
+                onChange={onChangeText}
+                required
+                className={frmFieldClassess.textField}
+              >
+                {genders.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-field">
+              <label htmlFor="birthday" className="form-label-required">
+                Birthday:
+              </label>
+              <input
+                type="date"
+                name="birthday"
+                id="birthday"
+                placeholder="Enter middle name"
+                className={`p-1.5 ` + frmFieldClassess.textField}
+                onChange={onChangeText}
+                required
+              />
+            </div>
           </div>
-          <div className="col-7 new-client-form-field">
-            <TextInput
-              inputLabel="Birthday:"
-              onChange={onChangeText}
-              required
-              type="date"
-              className="new-client-text"
-              name="birthday"
-              id="birthday"
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
 
-        <div className="row">
-          <div className="col-12 new-client-form-field">
-            <TextInput
-              inputLabel="Address:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="address"
-              id="address"
-              placeholder="20 Ingram St. in Queens"
-              style={{ width: "100%" }}
-            />
+          <div className="grid grid-cols-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="address" className="form-label-required">
+                Address:
+              </label>
+              <input
+                type="text"
+                name="address"
+                id="address"
+                placeholder="Enter address"
+                className={frmFieldClassess.textField}
+                onChange={onChangeText}
+                required
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="row">
-          <div className="col-6 new-client-form-field">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
             {regionsList && (
-              <div>
-                <label htmlFor="region">Region:</label>
+              <div className="form-field">
+                <label htmlFor="region" className="form-label-required">
+                  Region:
+                </label>
                 <select
-                  className="new-client-text"
-                  style={{ width: "100%" }}
+                  className={frmFieldClassess.textField}
                   name="region"
                   id="region"
                   onChange={onChangeText}
@@ -417,15 +441,14 @@ const NewClient = ({ closeModal, rerunList }) => {
                 </select>
               </div>
             )}
-          </div>
 
-          <div className="col-6 new-client-form-field">
             {provincesList && (
-              <div>
-                <label htmlFor="province">Province:</label>
+              <div className="form-field">
+                <label htmlFor="province" className="form-label-required">
+                  Province:
+                </label>
                 <select
-                  className="new-client-text"
-                  style={{ width: "100%" }}
+                  className={frmFieldClassess.textField}
                   name="province"
                   id="province"
                   onChange={onChangeText}
@@ -444,16 +467,15 @@ const NewClient = ({ closeModal, rerunList }) => {
               </div>
             )}
           </div>
-        </div>
 
-        <div className="row">
-          <div className="col-6 new-client-form-field">
+          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
             {citiesList && (
-              <div>
-                <label htmlFor="city">City:</label>
+              <div className="form-field">
+                <label htmlFor="city" className="form-label-required">
+                  City:
+                </label>
                 <select
-                  className="new-client-text"
-                  style={{ width: "100%" }}
+                  className={frmFieldClassess.textField}
                   name="city"
                   id="city"
                   onChange={onChangeText}
@@ -468,15 +490,14 @@ const NewClient = ({ closeModal, rerunList }) => {
                 </select>
               </div>
             )}
-          </div>
 
-          <div className="col-6 new-client-form-field">
             {barangaysList && (
-              <div>
-                <label htmlFor="province">Barangay:</label>
+              <div className="form-field">
+                <label htmlFor="province" className="form-label-required">
+                  Barangay:
+                </label>
                 <select
-                  className="new-client-text"
-                  style={{ width: "100%" }}
+                  className={frmFieldClassess.textField}
                   name="barangay"
                   id="barangay"
                   onChange={onChangeText}
@@ -492,156 +513,173 @@ const NewClient = ({ closeModal, rerunList }) => {
               </div>
             )}
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="zip_code" className="form-label-required">
+                Zip Code:
+              </label>
+              <input
+                type="text"
+                name="zip_code"
+                id="zip_code"
+                placeholder="Enter zip code"
+                className={frmFieldClassess.textField}
+                onChange={onChangeText}
+                required
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="country" className="form-label-required">
+                Country:
+              </label>
+              <input
+                type="text"
+                name="country"
+                id="country"
+                value="Philippines"
+                className={frmFieldClassess.textField}
+                onChange={onChangeText}
+                disabled
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="contact_number" className="form-label-required">
+                Contact Number:
+              </label>
+              <input
+                onChange={onChangeText}
+                required
+                type="text"
+                className={frmFieldClassess.textField}
+                name="contact_number"
+                id="contact_number"
+                placeholder="0999 999 9999"
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="email_address" className="form-label-required">
+                Email Address:
+              </label>
+              <input
+                onChange={onChangeText}
+                required
+                type="email"
+                className={frmFieldClassess.textField}
+                name="email_address"
+                id="email_address"
+                placeholder="example@example.com"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="facebook" className="form-label-required">
+                Facebook:
+              </label>
+              <input
+                onChange={onChangeText}
+                required
+                type="text"
+                className={frmFieldClassess.textField}
+                name="facebook"
+                id="facebook"
+                placeholder="Enter your Facebook username"
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="instagram" className="form-label-required">
+                Instagram:
+              </label>
+              <input
+                onChange={onChangeText}
+                required
+                type="text"
+                className={frmFieldClassess.textField}
+                name="instagram"
+                id="instagram"
+                placeholder="Enter your Instagram username"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="maintenance" className="form-label-required">
+                Maintenance:
+              </label>
+              <textarea
+                onChange={onChangeText}
+                required
+                type="text"
+                className={frmFieldClassess.textField}
+                name="maintenance"
+                id="maintenance"
+                placeholder="Enter client maintenance"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
+            <div className="form-field">
+              <label htmlFor="signature" className="form-label-required">
+                Signature:
+              </label>
+              <input
+                type="file"
+                onChange={(e) => setCtSig(e.target.files[0])}
+                className={frmFieldClassess.textField}
+                accept="image/png, image/jpg, image/jpeg"
+                name="signature"
+                id="signature"
+                required
+              />
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="image" className="form-label-required">
+                Image:
+              </label>
+              <input
+                onChange={(e) => setCtImage(e.target.files[0])}
+                required
+                type="file"
+                className={frmFieldClassess.textField}
+                name="image"
+                id="image"
+                accept="image/png, image/jpg, image/jpeg"
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="row">
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Zip Code:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="zip_code"
-              id="zip_code"
-              placeholder="0000"
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Country:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="country"
-              id="country"
-              value="Philippines"
-              style={{ width: "100%" }}
-              disabled
-            />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Contact Number:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="contact_number"
-              id="contact_number"
-              placeholder="0999 999 9999"
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Email Address:"
-              onChange={onChangeText}
-              required
-              type="email"
-              className="new-client-text"
-              name="email_address"
-              id="email_address"
-              placeholder="example@example.com"
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Facebook:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="facebook"
-              id="facebook"
-              placeholder="Enter your Facebook username"
-              style={{ width: "100%" }}
-            />
-          </div>
-
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Instagram:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="instagram"
-              id="instagram"
-              placeholder="Enter your Instagram username"
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
-
-        <div className="row new-client-form-field">
-          <div className="col-12">
-            <TextInput
-              inputLabel="Maintenance:"
-              onChange={onChangeText}
-              required
-              type="text"
-              className="new-client-text"
-              name="maintenance"
-              id="maintenance"
-              placeholder="Enter client maintenance"
-              style={{ width: "100%" }}
-            />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Signature:"
-              onChange={(e) => setCtSig(e.target.files[0])}
-              required
-              type="file"
-              className="new-client-text"
-              name="signature"
-              id="signature"
-              style={{ width: "100%" }}
-              accept="image/png, image/jpg, image/jpeg"
-            />
-          </div>
-          <div className="col-6 new-client-form-field">
-            <TextInput
-              inputLabel="Image:"
-              onChange={(e) => setCtImage(e.target.files[0])}
-              required
-              type="file"
-              className="new-client-text"
-              name="image"
-              id="image"
-              style={{ width: "100%" }}
-              accept="image/png, image/jpg, image/jpeg"
-            />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-12">
-            <Button
-              text={isSubmit ? "Loading..." : "Save Profile"}
-              name="save_profile"
-              id="save_profile"
-              icon={isSubmit ? "circle" : "save"}
-              type="submit"
-              style={{ marginRight: "5px" }}
-              disabled={isSubmit}
-            />
-          </div>
+        <div>
+          <button
+            className="flex items-center bg-cyan-600 p-2 rounded-md text-white font-bold"
+            text={isSubmit ? "Loading..." : "Save Profile"}
+            name="save_profile"
+            id="save_profile"
+            icon={isSubmit ? "circle" : "save"}
+            type="submit"
+            disabled={isSubmit}
+          >
+            {isSubmit ? (
+              <>
+                <DotsHorizontalIcon className="h-5 w-5 mr-2" /> Saving...
+              </>
+            ) : (
+              <>
+                <SaveAsIcon className="h-5 w-5 mr-2" /> Save Profile
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>
