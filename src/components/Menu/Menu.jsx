@@ -10,7 +10,7 @@ import {
 
 const Menu = ({ isAuth }) => {
   const inActiveLink =
-    "flex items-center p-4 text-xl font-bold hover:bg-gray-200 hover:text-red-700 cursor-pointer rounded-xl active:scale-95 mb-2";
+    "flex transition-all ease-in-out items-center p-4 text-xl text-white font-bold hover:bg-gray-200 hover:text-red-700 cursor-pointer rounded-xl active:scale-95 mb-2";
 
   const activeLink = "text-red-700 bg-gray-200 scale-95 " + inActiveLink;
   return (

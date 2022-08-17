@@ -45,10 +45,10 @@ const ManageObjects = ({ isAuthenticated }) => {
         </Link>
 
         <div
-          // to="/manage-objects/visit-types"
-          className="text-gray-600 border border-slate-300 rounded-lg p-4 h-full w-full group"
+        // to="/manage-objects/visit-types"
+        // className="text-gray-600 border border-slate-300 rounded-lg p-4 h-full w-full group"
         >
-          <div className="text-lg italic">More settings soon.</div>
+          {/* <div className="text-lg italic">More settings soon.</div> */}
           {/* <div className="text-sm">Add, edit, or delete visit types.</div> */}
         </div>
         <div> </div>

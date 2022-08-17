@@ -1,10 +1,74 @@
 import { Navigate, Link } from "react-router-dom";
-import { ArrowCircleLeftIcon } from "@heroicons/react/outline";
+import {
+  ArrowCircleLeftIcon,
+  ChevronDoubleRightIcon,
+  TrashIcon,
+} from "@heroicons/react/outline";
+import {
+  getServiceReportConfigurations,
+  getServices,
+  getServiceReports,
+  postServiceReport,
+} from "../functions/apiCalls";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import ContentLoading from "../components/ContentLoading";
+import AddServiceReportConfig from "../components/AddServiceReportConfig";
+import { toast } from "react-toastify";
 
 const ServiceReports = ({ isAuthenticated }) => {
+  const queryClient = useQueryClient();
+  const getSrc = useQuery(["getSrc"], () => getServiceReportConfigurations(), {
+    refetchOnWindowFocus: false,
+  });
+  const getServ = useQuery(["getService"], () => getServices(), {
+    refetchOnWindowFocus: false,
+  });
+  const getServReps = useQuery(
+    ["getServiceReport"],
+    () => getServiceReports(),
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const postReportConfig = useMutation(postServiceReport, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries(["getSrc"]);
+      toast(res.message);
+    },
+    onError: (res) => {
+      toast(res.data.message);
+    },
+  });
+
+  async function addNew(frmData) {
+    postReportConfig.mutate(frmData);
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/" />;
   }
+
+  // async function testFn() {
+  //   try {
+  //     postServiceReportConfiguration().catch((err) => {
+  //       let errors = "";
+
+  //       for (let value of Object.values(err.response.data.error)) {
+  //         if (errors === "") {
+  //           errors = value[0];
+  //         } else {
+  //           errors = errors + "\n" + value[0];
+  //         }
+  //       }
+
+  //       alert(errors);
+  //     });
+  //   } catch (error) {
+  //     alert(error);
+  //   }
+  // }
+
   return (
     <div>
       <div className="text-lg mb-3">
@@ -12,8 +76,62 @@ const ServiceReports = ({ isAuthenticated }) => {
           <ArrowCircleLeftIcon className="h-7 w-7" />
         </Link>
       </div>
-      <div className="text-2xl text-slate-400 text-center italic">
-        This page is not yet available.
+      <div className="w-full">
+        <h1 className="text-lg font-bold mb-4">Manage Service Reports</h1>
+
+        <AddServiceReportConfig
+          services={getServ.data && getServ.data.data}
+          serviceReports={getServReps.data && getServReps.data.data}
+          submitForm={addNew}
+        />
+
+        {getSrc.isLoading && getServ.isLoading && getServReps.isLoading && (
+          <ContentLoading />
+        )}
+        {getSrc.isError &&
+          getServ.isError &&
+          getServReps.isError &&
+          "Something went wrong. Cannot fetch report configurations."}
+
+        <div>
+          {getSrc.data &&
+            getServ.data &&
+            getServReps.data &&
+            getServ.data.data.map((service) => (
+              <div key={service.id}>
+                <div className="p-4 transition-all ease-in-out bg-slate-100 hover:bg-slate-50 border border-slate-300 mb-3 rounded">
+                  <div className="font-bold mb-3 text-cyan-600 text-lg">
+                    {service.service_name}
+                  </div>
+                  <div className="italic text-slate-500 mb-2 font-bold text-sm">
+                    Reports:
+                  </div>
+                  <div className="text-slate-500 ml-2 text-sm italic">
+                    {getSrc.data.data.filter(
+                      (config) => config.service_id === service.id
+                    ).length <= 0 && (
+                      <div className="text-slate-400">
+                        No reports configured for this service
+                      </div>
+                    )}
+                    {getSrc.data.data
+                      .filter((config) => config.service_id === service.id)
+                      .map((service_config) => (
+                        <div
+                          key={service_config.id}
+                          className="flex items-center"
+                        >
+                          <ChevronDoubleRightIcon className="h-3 w-3 mr-3 inline-block text-slate-300" />
+                          <TrashIcon className="h-5 w-5 mr-3 text-red-500" />
+
+                          {service_config.report_name}
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   );

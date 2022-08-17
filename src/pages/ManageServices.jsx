@@ -5,7 +5,6 @@ import { Link, Navigate } from "react-router-dom";
 
 import {
   PlusIcon,
-  TrashIcon,
   FolderOpenIcon,
   CheckCircleIcon,
   BanIcon,
@@ -89,38 +88,38 @@ const ManageServices = ({ isAuthenticated }) => {
 };
 
 const ServicesList = ({ reloadAfterDelete, data, selServiceId }) => {
-  const delService = async (serviceId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure to delete this service? This will affect the visits that references this service."
-    );
+  // const delService = async (serviceId) => {
+  //   const confirmDelete = window.confirm(
+  //     "Are you sure to delete this service? This will affect the visits that references this service."
+  //   );
 
-    if (confirmDelete) {
-      let config = {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-          "Allow-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      };
+  //   if (confirmDelete) {
+  //     let config = {
+  //       headers: {
+  //         Authorization: localStorage.getItem("token"),
+  //         "Allow-Control-Allow-Origin": "*",
+  //         "Content-Type": "application/json",
+  //       },
+  //     };
 
-      await axios
-        .delete(`${process.env.REACT_APP_API_URL}service/${serviceId}`, config)
-        .then((res) => alert(res.data.message));
+  //     await axios
+  //       .delete(`${process.env.REACT_APP_API_URL}service/${serviceId}`, config)
+  //       .then((res) => alert(res.data.message));
 
-      reloadAfterDelete();
-    }
-  };
+  //     reloadAfterDelete();
+  //   }
+  // };
   return data.map((service) => (
     <div
       key={service.id}
       className="bg-gray-100 mb-3 rounded-xl px-4 p-3 items-center border border-gray-100 hover:border hover:border-slate-400"
     >
-      <button
+      {/* <button
         onClick={() => delService(service.id)}
         className="float-right bg-red-700 border border-red-700 text-white px-1 md:p-1 rounded-md"
       >
         <TrashIcon className="h-8 w-8 md:w-4 md:h-4" />
-      </button>
+      </button> */}
       <button
         onClick={() => selServiceId(service.id)}
         className="mr-3 float-right text-cyan-700 border border-cyan-700 font-bold px-1 rounded-md"
@@ -153,7 +152,9 @@ const AddService = ({ goBack }) => {
   });
 
   const textOnChange = (e) =>
-    setFrmData({ ...frmData, [e.target.name]: e.target.value });
+    setFrmData((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
 
   const frmSubmit = async (e) => {
     e.preventDefault();
@@ -252,10 +253,12 @@ const AddService = ({ goBack }) => {
                 name="availability"
                 className="sr-only"
                 defaultChecked={frmData.availability}
-                onClick={() =>
-                  setFrmData({
-                    ...frmData,
-                    availability: !frmData.availability,
+                onChange={() =>
+                  setFrmData((prev) => {
+                    return {
+                      ...prev,
+                      availability: !frmData.availability,
+                    };
                   })
                 }
               />
@@ -265,7 +268,7 @@ const AddService = ({ goBack }) => {
 
           <div
             className={`items-center mb-5 ${
-              !frmData.availability ? "hidden" : "block"
+              frmData.availability ? "hidden" : "block"
             }`}
           >
             <label htmlFor="not_available_text" className="form-label">
@@ -359,7 +362,9 @@ const EditService = ({ goBack, serviceId }) => {
   }, [serviceId]);
 
   const textOnChange = (e) =>
-    setFrmData({ ...frmData, [e.target.name]: e.target.value });
+    setFrmData((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
 
   const frmSubmit = async (e) => {
     e.preventDefault();
@@ -459,9 +464,11 @@ const EditService = ({ goBack, serviceId }) => {
                 className="sr-only"
                 checked={frmData.availability}
                 onChange={() =>
-                  setFrmData({
-                    ...frmData,
-                    availability: !frmData.availability,
+                  setFrmData((prev) => {
+                    return {
+                      ...prev,
+                      availability: !frmData.availability,
+                    };
                   })
                 }
               />
@@ -471,7 +478,7 @@ const EditService = ({ goBack, serviceId }) => {
 
           <div
             className={`items-center mb-5 ${
-              !frmData.availability ? "hidden" : "block"
+              frmData.availability ? "hidden" : "block"
             }`}
           >
             <label htmlFor="not_available_text" className="form-label">

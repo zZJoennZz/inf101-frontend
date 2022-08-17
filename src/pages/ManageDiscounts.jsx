@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { Link, Navigate } from "react-router-dom";
 
-import { PlusIcon, TrashIcon, FolderOpenIcon } from "@heroicons/react/solid";
+import { PlusIcon, FolderOpenIcon } from "@heroicons/react/solid";
 
 import { ArrowCircleLeftIcon } from "@heroicons/react/outline";
 
@@ -83,41 +83,41 @@ const ManageDiscounts = ({ isAuthenticated }) => {
 };
 
 const DiscountList = ({ reloadAfterDelete, data, selDiscountId }) => {
-  const delDiscount = async (discountId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure to delete this discount? This will affect the visits that references this discount."
-    );
+  // const delDiscount = async (discountId) => {
+  //   const confirmDelete = window.confirm(
+  //     "Are you sure to delete this discount? This will affect the visits that references this discount."
+  //   );
 
-    if (confirmDelete) {
-      let config = {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-          "Allow-Control-Allow-Origin": "*",
-          "Content-Type": "application/json",
-        },
-      };
+  //   if (confirmDelete) {
+  //     let config = {
+  //       headers: {
+  //         Authorization: localStorage.getItem("token"),
+  //         "Allow-Control-Allow-Origin": "*",
+  //         "Content-Type": "application/json",
+  //       },
+  //     };
 
-      await axios
-        .delete(
-          `${process.env.REACT_APP_API_URL}discount/${discountId}`,
-          config
-        )
-        .then((res) => alert(res.data.message));
+  //     await axios
+  //       .delete(
+  //         `${process.env.REACT_APP_API_URL}discount/${discountId}`,
+  //         config
+  //       )
+  //       .then((res) => alert(res.data.message));
 
-      reloadAfterDelete();
-    }
-  };
+  //     reloadAfterDelete();
+  //   }
+  // };
   return data.map((discount) => (
     <div
       key={discount.id}
       className="bg-gray-100 mb-3 rounded-xl px-4 p-3 items-center border border-gray-100 hover:border hover:border-slate-400"
     >
-      <button
+      {/* <button
         onClick={() => delDiscount(discount.id)}
         className="float-right bg-red-700 border border-red-700 text-white px-1 md:p-1 rounded-md"
       >
         <TrashIcon className="h-8 w-8 md:w-4 md:h-4" />
-      </button>
+      </button> */}
       <button
         onClick={() => selDiscountId(discount.id)}
         className="mr-3 float-right text-cyan-700 border border-cyan-700 font-bold px-1 rounded-md"

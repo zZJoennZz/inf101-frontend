@@ -9,9 +9,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 import Loading from "./components/Loading/Loading";
 
-//pages
-//import Test from './pages/Test';
-
 //api
 import axios from "axios";
 import SideBar from "./components/SideBar";
@@ -110,7 +107,6 @@ const App = () => {
     };
     validateToken();
   }, []);
-
   return (
     <div className="App">
       <div className="row">
@@ -138,7 +134,7 @@ const App = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="dark"
+        theme="light"
       />
     </div>
   );

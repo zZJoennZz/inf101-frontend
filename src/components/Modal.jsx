@@ -14,7 +14,7 @@ const Modal = ({
       </button>
 
       <div
-        className={`fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full ${
+        className={`fixed z-10 inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full ${
           isOpen ? "flex items-center" : "hidden"
         }`}
         id="my-modal"

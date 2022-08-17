@@ -67,15 +67,15 @@ const VisitDetails = ({ clientId }) => {
   });
 
   return (
-    <div className="p-1 md:p-3">
+    <div className="p-1 md:p-3 max-h-screen">
       <div className="text-left mb-3">
         <Link to="/visits">{"<"} Back</Link>
       </div>
 
       <div className="border-b pb-2 mb-3">
         <img
-          src={`${process.env.REACT_APP_IMG_URL}` + visitDetail[0].image}
-          className="w-24 h-24 bg-white rounded-md shadow-md md:float-right"
+          src={visitDetail[0].image}
+          className="w-24 h-24 bg-white rounded-md shadow-md md:float-right border-2 border-white"
           alt={
             visitDetail[0].first_name +
             " " +
@@ -199,7 +199,7 @@ const VisitDetails = ({ clientId }) => {
           </div>
         )}
         {reportsList.map((report) => (
-          <div key={report.id}>
+          <div key={report.id} className="mb-3">
             {/* {report.service_report_id === 5 && (
               <ReportMyBody
                 visitId={visitDetail[0].id}

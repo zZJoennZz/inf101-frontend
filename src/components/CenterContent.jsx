@@ -16,8 +16,8 @@ import ServiceReports from "../pages/ServiceReports";
 
 const CenterContent = ({ isAuth, login }) => {
   return (
-    <div className="flex-grow h-screen overflow-y-auto">
-      <div className="mx- min-w-full max-w-lg md:max-w-xl lg:max-w-2xl p-3">
+    <div className="flex-grow h-screen max-h-screen overflow-y-auto">
+      <div className="min-w-full max-w-lg md:max-w-xl lg:max-w-2xl p-3">
         <Routes>
           <Route
             exact

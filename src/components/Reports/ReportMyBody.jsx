@@ -61,6 +61,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
         .then((res) => {
           setSysMsg(res.data.message);
           setIsLoading(false);
+          setFrmMode(2);
         })
         .catch((err) => {
           setSysMsg(err);
@@ -76,6 +77,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
         .then((res) => {
           setSysMsg(res.data.message);
           setIsLoading(false);
+          setFrmMode(2);
         })
         .catch((err) => {
           setSysMsg(err);
@@ -123,7 +125,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
   }, [visitId, reportId, clientId]);
 
   return (
-    <div className="p-3 overflow-y-auto rounded-lg border border-slate-200">
+    <div className="p-3 overflow-x-auto rounded-lg border border-slate-200">
       <div className="flex flex-col items-center">
         <span className="mb-3 text-sm italic">{sysMsg}</span>{" "}
         {isLoading && <ContentLoading />}
@@ -151,6 +153,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     className={textInputFullW}
                     value={frmData["body_weight"]}
                     onChange={onChangeText}
+                    required
                   />
                 </td>
                 <td className={tdClasses}>
@@ -162,6 +165,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     className={`${textInputFullW} mb-2`}
                     value={frmData["target_weight"]}
                     onChange={onChangeText}
+                    required
                   />
                 </td>
               </tr>
@@ -174,6 +178,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="body_height"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["body_height"]}
                   />
                 </td>
@@ -190,6 +195,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="body_mass_index"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["body_mass_index"]}
                   />
                 </td>
@@ -206,6 +212,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="random_blood_sugar"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["random_blood_sugar"]}
                   />
                 </td>
@@ -222,6 +229,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="body_temp_before"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["body_temp_before"]}
                   />
                 </td>
@@ -232,6 +240,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="body_temp_after"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["body_temp_after"]}
                   />
                 </td>
@@ -245,6 +254,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="blood_pressure_before"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["blood_pressure_before"]}
                   />
                 </td>
@@ -255,6 +265,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="blood_pressure_after"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["blood_pressure_after"]}
                   />
                 </td>
@@ -268,6 +279,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="oxygen_level_before"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["oxygen_level_before"]}
                   />
                 </td>
@@ -278,6 +290,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="oxygen_level_after"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["oxygen_level_after"]}
                   />
                 </td>
@@ -291,6 +304,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="pulse_rate_before"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["pulse_rate_before"]}
                   />
                 </td>
@@ -301,6 +315,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
                     name="pulse_rate_after"
                     className={textInputFullW}
                     onChange={onChangeText}
+                    required
                     value={frmData["pulse_rate_after"]}
                   />
                 </td>
@@ -311,7 +326,7 @@ const ReportMyBody = ({ visitId, reportId, clientId }) => {
             type="submit"
             className="bg-cyan-600 inline-block text-white font-bold p-2 rounded-md hover:bg-cyan-500 transition-all ease-in-out"
           >
-            <SaveIcon className="h-4 w-4 inline-block" /> Save Report
+            <SaveIcon className="h-4 w-4 inline-block" /> Save Record
           </button>
         </form>
       </div>

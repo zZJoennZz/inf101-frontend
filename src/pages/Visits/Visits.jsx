@@ -11,7 +11,10 @@ import VisitsList from "../../components/VisitsList/VisitsList";
 import ContentLoading from "../../components/ContentLoading";
 import Modal from "../../components/Modal";
 
+import { reverseArrOrder } from "../../functions/reverseArrOrder";
+
 import { PlusIcon, SearchIcon, SaveIcon } from "@heroicons/react/solid";
+import { postVisit } from "../../functions/apiCalls";
 
 const Visits = ({ isAuthenticated }) => {
   if (!isAuthenticated) {
@@ -56,12 +59,6 @@ const VisitsContent = () => {
     <div className="w-full">
       <div className="p-2">
         <div className="mb-3">
-          {/* <button
-            className="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
-            onClick={() => setOpenModal(!openModal)}
-          >
-            <PlusIcon className="inline-block w-5 h-5 md:mr-2" /> Add new
-          </button> */}
           <Modal
             isOpen={openModal}
             content={
@@ -112,7 +109,7 @@ const VisitsContent = () => {
                   </thead>
                   <tbody>
                     <VisitsList
-                      data={visitList}
+                      data={reverseArrOrder(visitList)}
                       runReload={() => setReloadPage(reloadPage + 1)}
                     />
                   </tbody>
@@ -233,26 +230,16 @@ const AddNewVisit = ({ runReload, closeModal }) => {
       frmData,
       selectedServices,
     };
-    let config = {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        Authorization: localStorage.getItem("token"),
-        "Allow-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    };
-
-    await fetch(`${process.env.REACT_APP_API_URL}visit`, config).then(
-      (response) => {
-        response.json();
-        toast("Visit successfully recorded!");
+    postVisit(data)
+      .then((res) => {
+        toast(res.message);
         visitForm.current.reset();
         runReload();
         closeModal(false);
-      }
-    );
+      })
+      .catch((error) => {
+        toast(error.data.message);
+      });
   };
 
   React.useEffect(() => {

@@ -47,7 +47,10 @@ const UserMenus = ({ isAuthenticated, runLogout }) => {
           )}
 
           <div className="block text-center text-sm text-gray-400">
-            {"{"} Made with a lot of ❤️ {"}"}
+            <div>
+              {"{"} Made with a lot of ❤️ {"}"}
+            </div>
+            <div className="italic text-xs">Software version: 1.0.0</div>
           </div>
         </>
       ) : (

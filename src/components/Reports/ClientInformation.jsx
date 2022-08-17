@@ -1,6 +1,5 @@
 import React from "react";
 import "./ct-inf-assets/style.css";
-import bgImg from "./ct-inf-assets/report_bg.png";
 import { getAge } from "../../functions/getAge";
 import { changeDateFormat } from "../../functions/changeDateFormat";
 
@@ -12,11 +11,10 @@ const ClientInformation = (props) => {
         style={{
           height: "29.7cm",
           width: "21cm",
-          backgroundImage: `url("${bgImg}")`,
           backgroundSize: "cover",
           fontFamily: "Exo",
         }}
-        className="absolute top-0 left-0 border border-black"
+        className="absolute top-0 left-0 bg-client-info"
       >
         <div className="w-10/12 mx-auto">
           <div className="text-center text-2xl font-bold mt-48">
@@ -28,7 +26,7 @@ const ClientInformation = (props) => {
           <img
             alt="client"
             className="float-right border-2 border-black"
-            src={process.env.REACT_APP_IMG_URL + ctDets.image}
+            src={ctDets.image}
             style={{ height: "1in", width: "1in" }}
           />
           <div className="text-left grid grid-cols-3 mt-2">
@@ -153,7 +151,7 @@ const ClientInformation = (props) => {
               >
                 <div className="py-3">
                   <img
-                    src={process.env.REACT_APP_IMG_URL + ctDets.signature}
+                    src={ctDets.signature}
                     className="mx-auto h-10"
                     alt="signature"
                   />

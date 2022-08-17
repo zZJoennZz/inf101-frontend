@@ -1,23 +1,16 @@
 import React from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
-
-import TextInput from "../../components/FormElements/TextInput";
-
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   regions,
   provinces,
   cities,
   barangays,
 } from "select-philippines-address";
-
 import { toast } from "react-toastify";
-
 import axios from "axios";
-
 import ContentLoading from "../../components/ContentLoading";
-
 import ClientInformation from "../../components/Reports/ClientInformation";
-
 import {
   PrinterIcon,
   PencilIcon,
@@ -27,28 +20,34 @@ import {
 } from "@heroicons/react/outline";
 import PersonalInformation from "../../components/PersonalInformation";
 import { getAge } from "../../functions/getAge";
+import { putClient } from "../../functions/apiCalls";
 
 const ViewClient = ({ isAuthenticated }) => {
+  const { clientId } = useParams();
   let [clientDetail, setClientDetail] = React.useState(false);
-
   let [isEditing, setIsEditing] = React.useState(false);
-
   let [isSaving, setIsSaving] = React.useState(false);
-
   let [regionsList, setRegionsList] = React.useState(false);
   let [provincesList, setProvincesList] = React.useState(false);
   let [citiesList, setCitiesList] = React.useState(false);
   let [barangaysList, setBarangaysList] = React.useState(false);
-
+  const queryClient = useQueryClient();
+  const { mutate, isLoading } = useMutation(putClient, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries(["allClients"]);
+      toast(res.message);
+      setIsEditing(false);
+    },
+    onError: (res) => {
+      toast(res.message);
+      setIsEditing(false);
+    },
+  });
   let [updated, setUpdated] = React.useState(false);
-
-  const { clientId } = useParams();
-
   const onChangeText = async (e) => {
     let fieldName = e.target.name;
     let fieldValue = e.target.value;
     setUpdated({ ...updated, [fieldName]: fieldValue });
-
     switch (fieldName) {
       case "region":
         await provinces(fieldValue).then((province) =>
@@ -65,7 +64,6 @@ const ViewClient = ({ isAuthenticated }) => {
         break;
     }
   };
-
   const onSaveChanges = async (e) => {
     setIsSaving(true);
     e.preventDefault();
@@ -76,48 +74,14 @@ const ViewClient = ({ isAuthenticated }) => {
         setClientDetail({ ...clientDetail, [key]: updated[key] });
       }
 
-      await axios
-        .post(
-          `${process.env.REACT_APP_API_URL}client/${clientId}?_method=PUT`,
-          data,
-          {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-              "Content-Type": "multipart/form-data",
-              "Allow-Control-Allow-Origin": "*",
-            },
-          }
-        )
-        .then((res) => {
-          toast(res.data.message);
-          setIsEditing(false);
-        })
-        .catch((error) => {
-          toast(error);
-          setIsEditing(false);
-        });
+      let anotherData = {
+        clientId: clientId,
+        data: data,
+      };
+      mutate(anotherData);
+      setIsSaving(false);
     }
   };
-
-  // const reLoadAddress = (address) => {
-  //   const { region, province, city } = address;
-
-  //   if (region) {
-  //     provinces(region).then((prov) => setProvincesList(prov));
-  //   }
-
-  //   if (province) {
-  //     cities(province).then((cit) => setCitiesList(cit));
-  //   }
-
-  //   if (city) {
-  //     barangays(city).then((brgy) => setBarangaysList(brgy));
-  //   }
-  //   console.log(regionsList);
-  //   console.log(provincesList);
-  //   console.log(citiesList);
-  //   console.log(barangaysList);
-  // };
 
   React.useEffect(() => {
     let isSub = true;
@@ -149,7 +113,10 @@ const ViewClient = ({ isAuthenticated }) => {
             }
           }
         })
-        .catch((err) => setClientDetail(false));
+        .catch((err) => {
+          toast(err);
+          setClientDetail(false);
+        });
     };
     getClient();
     return () => (isSub = false);
@@ -169,33 +136,6 @@ const ViewClient = ({ isAuthenticated }) => {
       <div>
         <Link to="/clients">{"<"} Back</Link>
       </div>
-      <div id="section-to-print" style={{ display: "none" }}>
-        {/* <ClientInformation
-          ctDets={clientDetail}
-          fullAddress={
-            !regionsList || !provincesList || !citiesList || !barangaysList
-              ? "Loading..."
-              : clientDetail.address +
-                ", " +
-                barangaysList.filter(
-                  (d) => d.brgy_code === clientDetail.barangay
-                )[0].brgy_name +
-                ", " +
-                citiesList.filter((d) => d.city_code === clientDetail.city)[0]
-                  .city_name +
-                ", " +
-                provincesList.filter(
-                  (d) => d.province_code === clientDetail.province
-                )[0].province_name +
-                ", " +
-                regionsList.filter(
-                  (d) => d.region_code === clientDetail.region
-                )[0].region_name +
-                ", " +
-                clientDetail.zip_code
-          }
-        /> */}
-      </div>
       {!clientDetail && <ContentLoading />}
 
       {clientDetail && (
@@ -205,7 +145,7 @@ const ViewClient = ({ isAuthenticated }) => {
               <div className="p-1 md:p-3">
                 <div className="mb-2">
                   <img
-                    src={process.env.REACT_APP_IMG_URL + clientDetail.image}
+                    src={clientDetail.image}
                     alt={clientDetail.first_name}
                     className="w-24 h-24 bg-white rounded-md border"
                   />
@@ -217,8 +157,8 @@ const ViewClient = ({ isAuthenticated }) => {
                       type="submit"
                       className="p-2 mr-1 bg-cyan-500 text-white rounded-full hover:shadow-lg hover:shadow-slate-300 transition-all ease-in-out"
                     >
-                      {isSaving && <DotsHorizontalIcon className="w-5 h-5" />}
-                      {!isSaving && <SaveIcon className="w-5 h-5" />}
+                      {isLoading && <DotsHorizontalIcon className="w-5 h-5" />}
+                      {!isLoading && <SaveIcon className="w-5 h-5" />}
                     </button>
                     <button
                       className="p-2 bg-red-500 text-white rounded-full hover:shadow-lg hover:shadow-slate-300 transition-all ease-in-out"
@@ -495,7 +435,7 @@ const ViewClient = ({ isAuthenticated }) => {
                   <PersonalInformation
                     infoTitle="Maintenance"
                     infoValue={
-                      <TextInput
+                      <textarea
                         onChange={onChangeText}
                         required
                         type="text"
@@ -521,7 +461,7 @@ const ViewClient = ({ isAuthenticated }) => {
                   <PrinterIcon className="w-7 h-7" />
                 </button>
                 <img
-                  src={process.env.REACT_APP_IMG_URL + clientDetail.image}
+                  src={clientDetail.image}
                   alt={clientDetail.first_name}
                   className="w-24 h-24 bg-white rounded-md border"
                 />
@@ -644,58 +584,41 @@ const ViewClient = ({ isAuthenticated }) => {
               </div>
               <div id="section-to-print" style={{ display: "none" }}>
                 {!isSaving && (
-                  <ClientInformation
-                    ctDets={clientDetail}
-                    fullAddress={
-                      !regionsList ||
-                      !provincesList ||
-                      !citiesList ||
-                      !barangaysList
-                        ? "Loading..."
-                        : clientDetail.address +
-                          ", " +
-                          barangaysList.filter(
-                            (d) => d.brgy_code === clientDetail.barangay
-                          )[0].brgy_name +
-                          ", " +
-                          citiesList.filter(
-                            (d) => d.city_code === clientDetail.city
-                          )[0].city_name +
-                          ", " +
-                          provincesList.filter(
-                            (d) => d.province_code === clientDetail.province
-                          )[0].province_name +
-                          ", " +
-                          regionsList.filter(
-                            (d) => d.region_code === clientDetail.region
-                          )[0].region_name +
-                          ", " +
-                          clientDetail.zip_code
-                    }
-                  />
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    <ClientInformation
+                      ctDets={clientDetail}
+                      fullAddress={
+                        !regionsList ||
+                        !provincesList ||
+                        !citiesList ||
+                        !barangaysList
+                          ? "Loading..."
+                          : clientDetail.address +
+                            ", " +
+                            barangaysList.filter(
+                              (d) => d.brgy_code === clientDetail.barangay
+                            )[0].brgy_name +
+                            ", " +
+                            citiesList.filter(
+                              (d) => d.city_code === clientDetail.city
+                            )[0].city_name +
+                            ", " +
+                            provincesList.filter(
+                              (d) => d.province_code === clientDetail.province
+                            )[0].province_name +
+                            ", " +
+                            regionsList.filter(
+                              (d) => d.region_code === clientDetail.region
+                            )[0].region_name +
+                            ", " +
+                            clientDetail.zip_code
+                      }
+                    />
+                  </React.Suspense>
                 )}
               </div>
             </div>
           )}
-
-          {/* <div className="row records-section">
-                            <div className="col-10">
-                                <div className="sec-header">
-                                    Records
-                                </div>
-                            </div>
-                            <div className="col-2">
-                                <Link to={"/clients/records/new/" + clientDetail.clientId}><button className="primary-btn" style={{'float' : 'right'}}>Add New</button></Link>
-                            </div>
-                        </div> */}
-          {/* <div className="row">
-                            <div className="col-12">
-                                <div className="records-card"><button className="primary-btn" style={{'float' : 'right'}}><i className="fas fa-print"></i></button> <Link to={"/clients/records/" + clientDetail.clientId + "/1"}><button className="primary-btn" style={{'float' : 'right'}}>Open</button></Link>
-                                    <div className="records-card-service">myTherapy</div>
-                                    <div className="records-card-date"><span className="records-card-date-text">Treatment/Reading Date:</span> December 12, 2021</div>
-                                </div>
-                            </div>
-                        </div> */}
         </div>
       )}
     </div>

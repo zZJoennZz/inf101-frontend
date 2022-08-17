@@ -1,9 +1,9 @@
 import React from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate } from "react-router-dom";
 import "./clients.scss";
 
 import { PlusIcon, SearchIcon } from "@heroicons/react/solid";
-import { SaveAsIcon, DotsHorizontalIcon } from "@heroicons/react/outline";
 
 import { toast } from "react-toastify";
 
@@ -13,121 +13,46 @@ import Modal from "../../components/Modal";
 import ClientPagination from "../../components/ClientPagination";
 import ContentLoading from "../../components/ContentLoading";
 
-import {
-  regions,
-  provinces,
-  cities,
-  barangays,
-} from "select-philippines-address";
+import { getClients, delClient } from "../../functions/apiCalls";
 
-import axios from "axios";
+import NewClient from "./NewClient";
 
 const Clients = ({ isAuthenticated }) => {
-  let [clientList, setClientList] = React.useState([]);
+  const queryClient = useQueryClient();
   let [openModal, setOpenModal] = React.useState(false);
   let [currentPage, setCurrentPage] = React.useState(1);
   let [clientsPerPage, setClientsPerPage] = React.useState(5);
-  let [loading, setLoading] = React.useState(false);
-  let [reloadPage, setReloadPage] = React.useState(0);
 
-  const deleteCt = async (clientId) => {
-    let rusure = window.confirm("Are you sure to delete this profile?");
-    try {
-      if (rusure) {
-        await axios
-          .delete(`${process.env.REACT_APP_API_URL}client/${clientId}`, {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-              "Content-Type": "multipart/form-data",
-              "Allow-Control-Allow-Origin": "*",
-            },
-          })
-          .then((res) => {
-            toast("Client profile successfully deleted!");
-            getClients(true);
-          })
-          .catch((error) => {
-            toast("Something went wrong. Please reload and try again.");
-          });
-      }
-    } catch (error) {
-      toast("Something went wrong. Please reload and try again.");
-    }
-  };
+  const { data, status } = useQuery(["allClients"], () => getClients());
 
-  const getClients = async (isSub) => {
-    setLoading(true);
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}client`, {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-          "Content-Type": "multipart/form-data",
-          "Allow-Control-Allow-Origin": "*",
-        },
-      })
-      .then((res) => {
-        if (isSub) {
-          setClientList(res.data.data);
-          setCurrentPage(1);
-        }
-      })
-      .catch((err) => (isSub ? setClientList([]) : null));
-    setLoading(false);
-  };
+  const deleteCt = useMutation(delClient, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries(["allClients"]);
+      toast(res.message);
+    },
+    onError: (res) => {
+      toast(res.message);
+    },
+  });
 
-  React.useEffect(() => {
-    let isSub = true;
-    setLoading(isSub);
-    const getClientsInitial = async () => {
-      await axios
-        .get(`${process.env.REACT_APP_API_URL}client`, {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "multipart/form-data",
-            "Allow-Control-Allow-Origin": "*",
-          },
-        })
-        .then((res) => {
-          if (isSub) {
-            setClientList(res.data.data);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          if (isSub) {
-            setClientList(false);
-            setLoading(false);
-          }
-        });
-    };
-    getClientsInitial();
-
-    return () => (isSub = false);
-  }, [reloadPage]);
-
-  const indexOfLastClient = currentPage * clientsPerPage;
-  const indexOfFirstClient = indexOfLastClient - clientsPerPage;
-  const currentClients = clientList.slice(
-    indexOfFirstClient,
-    indexOfLastClient
-  );
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
   if (!isAuthenticated) {
     return <Navigate to="/" />;
   }
+
+  const indexOfLastClient = currentPage * clientsPerPage;
+  const indexOfFirstClient = indexOfLastClient - clientsPerPage;
+  const currentClients =
+    data && data.data.slice(indexOfFirstClient, indexOfLastClient);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="w-full">
       <div className="p-2">
         <div className="mb-3">
           <Modal
             isOpen={openModal}
-            content={
-              <NewClient
-                rerunList={() => setReloadPage(reloadPage + 1)}
-                closeModal={(e) => setOpenModal(e)}
-              />
-            }
+            content={<NewClient closeModal={(e) => setOpenModal(e)} />}
             title="Add new client"
             closeModal={() => setOpenModal(!openModal)}
             btnClass="float-right flex items-center text-gray-700 border border-gray-700 p-3 rounded-full hover:bg-cyan-700 hover:border-cyan-700 hover:text-white"
@@ -140,7 +65,7 @@ const Clients = ({ isAuthenticated }) => {
           <h1 className="text-2xl font-bold text-teal-700">Clients</h1>
           <p className="italic">Manage clients</p>
         </div>
-        <div className="flex items-center p-2 md:p-4 bg-gray-100 rounded-full mb-5">
+        <div className="flex items-center p-2 md:p-4 bg-gray-100 rounded-full mb-3">
           <SearchIcon className="w-8 h-8 text-gray-400" />
           <input
             type="text"
@@ -148,15 +73,12 @@ const Clients = ({ isAuthenticated }) => {
             placeholder="Search..."
           />
         </div>
-        <div className="row">
-          <div className="col-3"></div>
-        </div>
 
         <div className="row clients-list">
           <div className="float-right mb-3">
-            <div className="inline-block mr-3 text-sm">Clients per page</div>
+            <div className="inline-block mr-3 text-xs">Clients per page</div>
             <select
-              className="p-1 text-sm bg-slate-100 border border-slate-300 rounded-md outline-none"
+              className="p-1 text-xs bg-slate-100 border border-slate-300 rounded-md outline-none"
               onChange={(e) => setClientsPerPage(e.target.value)}
             >
               <option value={5}>5</option>
@@ -167,521 +89,29 @@ const Clients = ({ isAuthenticated }) => {
             </select>
           </div>
           <div
-            className={clientList.length <= clientsPerPage ? "hidden" : "block"}
+            className={
+              data && data.length <= clientsPerPage ? "hidden" : "block"
+            }
           >
             <ClientPagination
               clientsPerPage={clientsPerPage}
-              totalClients={clientList.length}
+              totalClients={data && data.length}
               paginate={paginate}
             />
           </div>
-          <div className="col-12">
-            {loading ? (
-              <ContentLoading />
-            ) : (
-              <ClientList
-                data={currentClients}
-                deleteClient={deleteCt.bind(this)}
-              />
+          <div className="w-full float-left">
+            {status === "loading" && <ContentLoading />}
+            {status === "error" && (
+              <p className="text-center text-slate-500 italic">
+                Something went wrong! Contact website administrator.
+              </p>
+            )}
+            {data && (
+              <ClientList data={currentClients} deleteClient={deleteCt} />
             )}
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-const NewClient = ({ closeModal, rerunList }) => {
-  let frmRef = React.useRef(0);
-
-  let [isSubmit, setIsSubmit] = React.useState(false);
-  let [frmData, setFrmData] = React.useState(false);
-  let [regionsList, setRegionsList] = React.useState(false);
-  let [provincesList, setProvincesList] = React.useState(false);
-  let [citiesList, setCitiesList] = React.useState(false);
-  let [barangaysList, setBarangaysList] = React.useState(false);
-
-  let [ctImage, setCtImage] = React.useState(false);
-  let [ctSig, setCtSig] = React.useState(false);
-
-  const onSubmitFrm = async (e) => {
-    e.preventDefault();
-    setIsSubmit(true);
-    let imageData = new FormData();
-    let imgPath, sigPath;
-    imageData.append("image", ctImage);
-    imageData.append("sig", ctSig);
-
-    await axios
-      .post(process.env.REACT_APP_API_IMG, imageData)
-      .then((res) => {
-        imgPath = res.data.img_url;
-        sigPath = res.data.sig_url;
-        let data = new FormData();
-        for (let key of Object.keys(frmData)) {
-          data.append(key, frmData[key]);
-        }
-        data.append("image", imgPath);
-        data.append("signature", sigPath);
-        axios
-          .post(`${process.env.REACT_APP_API_URL}client`, data, {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-              "Content-Type": "multipart/form-data",
-              "Allow-Control-Allow-Origin": "*",
-            },
-          })
-          .then((res) => {
-            toast("Client profile added!");
-            frmRef.current.reset();
-            closeModal(false);
-            setIsSubmit(false);
-            rerunList();
-          })
-          .catch((err) => {
-            toast(err);
-            setIsSubmit(false);
-          });
-      })
-      .catch((err) => {
-        toast(err);
-        setIsSubmit(false);
-      });
-  };
-
-  const onChangeText = async (e) => {
-    let fieldName = e.target.name;
-    let fieldValue = e.target.value;
-    setFrmData({ ...frmData, [fieldName]: fieldValue });
-
-    switch (fieldName) {
-      case "region":
-        await provinces(fieldValue).then((province) =>
-          setProvincesList(province)
-        );
-        break;
-      case "province":
-        await cities(fieldValue).then((cities) => setCitiesList(cities));
-        break;
-      case "city":
-        await barangays(fieldValue).then((bgry) => setBarangaysList(bgry));
-        break;
-      default:
-        break;
-    }
-  };
-
-  const genders = [
-    {
-      id: 1,
-      label: "Male",
-      value: 1,
-    },
-    {
-      id: 2,
-      label: "Female",
-      value: 2,
-    },
-  ];
-
-  React.useEffect(() => {
-    let isMounted = true;
-    regions().then((region) => {
-      if (isMounted) {
-        setRegionsList(region);
-      }
-    });
-    return () => (isMounted = false);
-  }, []);
-
-  let frmFieldClassess = {
-    textField:
-      "bg-slate-200 mb-1 md:mb-0 w-full p-2 rounded-md border border-slate-200 outline-none focus:bg-white focus:border-slate-400",
-  };
-
-  return (
-    <div className="p-3">
-      <form
-        ref={frmRef}
-        onSubmit={onSubmitFrm}
-        name="new-client-form"
-        id="new-client-form"
-      >
-        <div style={{ maxHeight: "500px" }} className="overflow-y-auto mb-3">
-          <div className="grid grid-cols-1 md:grid-cols-4 md:space-x-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="first_name" className="form-label-required">
-                First Name:
-              </label>
-              <input
-                type="text"
-                name="first_name"
-                id="first_name"
-                placeholder="Enter first name"
-                className={frmFieldClassess.textField}
-                onChange={onChangeText}
-                required
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="middle_name" className="form-label-required">
-                Middle Name:
-              </label>
-              <input
-                type="text"
-                name="middle_name"
-                id="middle_name"
-                placeholder="Enter middle name"
-                className={frmFieldClassess.textField}
-                onChange={onChangeText}
-                required
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="last_name" className="form-label-required">
-                Last Name:
-              </label>
-              <input
-                type="text"
-                name="last_name"
-                id="last_name"
-                placeholder="Enter last name"
-                className={frmFieldClassess.textField}
-                onChange={onChangeText}
-                required
-              />
-            </div>
-            <div className="form-field">
-              <label htmlFor="suffix" className="form-label-required">
-                Suffix:
-              </label>
-              <input
-                type="text"
-                name="suffix"
-                id="suffix"
-                placeholder="Enter suffix"
-                className={frmFieldClassess.textField}
-                onChange={onChangeText}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="gender" className="form-label-required">
-                Gender:
-              </label>
-              <select
-                name="gender"
-                id="gender"
-                onChange={onChangeText}
-                required
-                className={frmFieldClassess.textField}
-              >
-                {genders.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-field">
-              <label htmlFor="birthday" className="form-label-required">
-                Birthday:
-              </label>
-              <input
-                type="date"
-                name="birthday"
-                id="birthday"
-                placeholder="Enter middle name"
-                className={`p-1.5 ` + frmFieldClassess.textField}
-                onChange={onChangeText}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="address" className="form-label-required">
-                Address:
-              </label>
-              <input
-                type="text"
-                name="address"
-                id="address"
-                placeholder="Enter address"
-                className={frmFieldClassess.textField}
-                onChange={onChangeText}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
-            {regionsList && (
-              <div className="form-field">
-                <label htmlFor="region" className="form-label-required">
-                  Region:
-                </label>
-                <select
-                  className={frmFieldClassess.textField}
-                  name="region"
-                  id="region"
-                  onChange={onChangeText}
-                  required
-                >
-                  <option value={0}>Select Region</option>
-                  {regionsList.map((d) => (
-                    <option key={d.region_code} value={d.region_code}>
-                      {d.region_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {provincesList && (
-              <div className="form-field">
-                <label htmlFor="province" className="form-label-required">
-                  Province:
-                </label>
-                <select
-                  className={frmFieldClassess.textField}
-                  name="province"
-                  id="province"
-                  onChange={onChangeText}
-                  required
-                >
-                  <option value={0}>Select Province</option>
-                  {provincesList.map((d) => (
-                    <option
-                      key={d.province_code + d.id}
-                      value={d.province_code}
-                    >
-                      {d.province_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
-            {citiesList && (
-              <div className="form-field">
-                <label htmlFor="city" className="form-label-required">
-                  City:
-                </label>
-                <select
-                  className={frmFieldClassess.textField}
-                  name="city"
-                  id="city"
-                  onChange={onChangeText}
-                  required
-                >
-                  <option value={0}>Select City</option>
-                  {citiesList.map((d) => (
-                    <option key={d.city_code + d.id} value={d.city_code}>
-                      {d.city_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {barangaysList && (
-              <div className="form-field">
-                <label htmlFor="province" className="form-label-required">
-                  Barangay:
-                </label>
-                <select
-                  className={frmFieldClassess.textField}
-                  name="barangay"
-                  id="barangay"
-                  onChange={onChangeText}
-                  required
-                >
-                  <option value={0}>Select Barangay</option>
-                  {barangaysList.map((d) => (
-                    <option key={d.brgy_code + d.id} value={d.brgy_code}>
-                      {d.brgy_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="zip_code" className="form-label-required">
-                Zip Code:
-              </label>
-              <input
-                type="text"
-                name="zip_code"
-                id="zip_code"
-                placeholder="Enter zip code"
-                className={frmFieldClassess.textField}
-                onChange={onChangeText}
-                required
-              />
-            </div>
-
-            <div className="form-field">
-              <label htmlFor="country" className="form-label-required">
-                Country:
-              </label>
-              <input
-                type="text"
-                name="country"
-                id="country"
-                value="Philippines"
-                className={frmFieldClassess.textField}
-                onChange={onChangeText}
-                disabled
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="contact_number" className="form-label-required">
-                Contact Number:
-              </label>
-              <input
-                onChange={onChangeText}
-                required
-                type="text"
-                className={frmFieldClassess.textField}
-                name="contact_number"
-                id="contact_number"
-                placeholder="0999 999 9999"
-              />
-            </div>
-
-            <div className="form-field">
-              <label htmlFor="email_address" className="form-label-required">
-                Email Address:
-              </label>
-              <input
-                onChange={onChangeText}
-                required
-                type="email"
-                className={frmFieldClassess.textField}
-                name="email_address"
-                id="email_address"
-                placeholder="example@example.com"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="facebook" className="form-label-required">
-                Facebook:
-              </label>
-              <input
-                onChange={onChangeText}
-                required
-                type="text"
-                className={frmFieldClassess.textField}
-                name="facebook"
-                id="facebook"
-                placeholder="Enter your Facebook username"
-              />
-            </div>
-
-            <div className="form-field">
-              <label htmlFor="instagram" className="form-label-required">
-                Instagram:
-              </label>
-              <input
-                onChange={onChangeText}
-                required
-                type="text"
-                className={frmFieldClassess.textField}
-                name="instagram"
-                id="instagram"
-                placeholder="Enter your Instagram username"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="maintenance" className="form-label-required">
-                Maintenance:
-              </label>
-              <textarea
-                onChange={onChangeText}
-                required
-                type="text"
-                className={frmFieldClassess.textField}
-                name="maintenance"
-                id="maintenance"
-                placeholder="Enter client maintenance"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 md:space-x-1 mb-3">
-            <div className="form-field">
-              <label htmlFor="signature" className="form-label-required">
-                Signature:
-              </label>
-              <input
-                type="file"
-                onChange={(e) => setCtSig(e.target.files[0])}
-                className={frmFieldClassess.textField}
-                accept="image/png, image/jpg, image/jpeg"
-                name="signature"
-                id="signature"
-                required
-              />
-            </div>
-
-            <div className="form-field">
-              <label htmlFor="image" className="form-label-required">
-                Image:
-              </label>
-              <input
-                onChange={(e) => setCtImage(e.target.files[0])}
-                required
-                type="file"
-                className={frmFieldClassess.textField}
-                name="image"
-                id="image"
-                accept="image/png, image/jpg, image/jpeg"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <button
-            className="flex items-center bg-cyan-600 p-2 rounded-md text-white font-bold"
-            text={isSubmit ? "Loading..." : "Save Profile"}
-            name="save_profile"
-            id="save_profile"
-            icon={isSubmit ? "circle" : "save"}
-            type="submit"
-            disabled={isSubmit}
-          >
-            {isSubmit ? (
-              <>
-                <DotsHorizontalIcon className="h-5 w-5 mr-2" /> Saving...
-              </>
-            ) : (
-              <>
-                <SaveAsIcon className="h-5 w-5 mr-2" /> Save Profile
-              </>
-            )}
-          </button>
-        </div>
-      </form>
     </div>
   );
 };
