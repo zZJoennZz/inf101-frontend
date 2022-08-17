@@ -31,13 +31,17 @@ const HomeLoggedIn = ({ isAuthenticated }) => {
         <div className="stat-box bg-gradient-to-r from-cyan-500 to-blue-500">
           <div className="stat-title">Clients</div>
           <div className="text-4xl">
-            {allClients.data && allClients.data.data.length}
+            {allClients.data && !allClients.isError
+              ? allClients.data.data.length
+              : 0}
           </div>
         </div>
         <div className="stat-box bg-gradient-to-r from-purple-500 to-pink-500">
           <div className="stat-title">Visits</div>
           <div className="text-4xl">
-            {allVisits.data && allVisits.data.data.length}
+            {allVisits.data && !allVisits.isError
+              ? allVisits.data.data.length
+              : 0}
           </div>
         </div>
         <div className="stat-box bg-gradient-to-r from-yellow-500 to-lime-400">
