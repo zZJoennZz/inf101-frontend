@@ -2,7 +2,7 @@ import axios from "axios";
 
 axios.defaults.headers.common["Allow-Control-Allow-Origin"] = "*";
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
-axios.defaults.validateStatus = false;
+// axios.defaults.validateStatus = true;
 
 //start clients functions
 export async function getClients() {

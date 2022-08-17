@@ -54,7 +54,7 @@ const ReportMyTherapyForBodyFullMat = ({ visitId, reportId, clientId }) => {
     },
     onError: (res) => {
       queryClient.removeQueries([queryKey]);
-      toast(res.message);
+      toast("Something went wrong.");
     },
   });
 
@@ -66,7 +66,7 @@ const ReportMyTherapyForBodyFullMat = ({ visitId, reportId, clientId }) => {
     },
     onError: (res) => {
       queryClient.invalidateQueries([queryKey]);
-      toast(res.message);
+      toast("Something went wrong.");
     },
   });
 

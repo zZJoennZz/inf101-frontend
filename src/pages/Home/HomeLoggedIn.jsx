@@ -15,6 +15,7 @@ const HomeLoggedIn = ({ isAuthenticated }) => {
   }
 
   if (allClients.isLoading || allVisits.isLoading) return <ContentLoading />;
+
   return (
     <div className="p-3">
       <div className="mb-2">
@@ -31,7 +32,7 @@ const HomeLoggedIn = ({ isAuthenticated }) => {
         <div className="stat-box bg-gradient-to-r from-cyan-500 to-blue-500">
           <div className="stat-title">Clients</div>
           <div className="text-4xl">
-            {allClients.data && !allClients.isError
+            {allClients.data && !allVisits.isLoading && !allClients.isError
               ? allClients.data.data.length
               : 0}
           </div>
@@ -39,7 +40,7 @@ const HomeLoggedIn = ({ isAuthenticated }) => {
         <div className="stat-box bg-gradient-to-r from-purple-500 to-pink-500">
           <div className="stat-title">Visits</div>
           <div className="text-4xl">
-            {allVisits.data && !allVisits.isError
+            {allVisits.data && !allVisits.isLoading && !allVisits.isError
               ? allVisits.data.data.length
               : 0}
           </div>

@@ -44,7 +44,7 @@ const ReportMyTherapyForFace = ({ visitId, reportId, clientId }) => {
     },
     onError: (res) => {
       queryClient.invalidateQueries([queryKey]);
-      toast(res.message);
+      toast("Something went wrong.");
     },
   });
 
@@ -56,7 +56,7 @@ const ReportMyTherapyForFace = ({ visitId, reportId, clientId }) => {
     },
     onError: (res) => {
       queryClient.invalidateQueries([queryKey]);
-      toast(res.message);
+      toast("Something went wrong.");
     },
   });
 

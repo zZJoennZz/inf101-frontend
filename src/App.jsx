@@ -38,12 +38,17 @@ const App = () => {
           },
         })
         .then((res) => {
-          toast("Login success!");
-          localStorage.setItem("userId", res.data.userId);
-          localStorage.setItem("token", `Bearer ${res.data.token}`);
-          localStorage.setItem("username", res.data.username);
-          setIsAuth(true);
-          setIsLoading(false);
+          if (res.status === 200) {
+            toast("Login success!");
+            localStorage.setItem("userId", res.data.userId);
+            localStorage.setItem("token", `Bearer ${res.data.token}`);
+            localStorage.setItem("username", res.data.username);
+            setIsAuth(true);
+            setIsLoading(false);
+          } else {
+            setIsAuth(false);
+            setIsLoading(false);
+          }
         })
         .catch((err) => {
           toast(`${err}`);
@@ -89,10 +94,15 @@ const App = () => {
             },
           })
           .then((res) => {
-            localStorage.setItem("userId", res.data.userId);
-            localStorage.setItem("username", res.data.username);
-            setIsAuth(true);
-            setIsLoading(false);
+            if (res.status === 200) {
+              localStorage.setItem("userId", res.data.userId);
+              localStorage.setItem("username", res.data.username);
+              setIsAuth(true);
+              setIsLoading(false);
+            } else {
+              setIsAuth(false);
+              setIsLoading(false);
+            }
           })
           .catch((err) => {
             setIsAuth(false);
