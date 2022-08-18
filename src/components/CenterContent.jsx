@@ -46,7 +46,7 @@ const CenterContent = ({ isLoading, isAuth, login }) => {
             />
             <Route
               path="/clients/:clientId"
-              element={<ViewClient isAuthenticated={isAuth} />}
+              element={privateRoute(isAuth, <ViewClient />)}
             />
             <Route
               path="/clients/records/:clientId/:inputId"
