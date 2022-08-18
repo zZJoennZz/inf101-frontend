@@ -1,19 +1,15 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
-
 import "./visits.scss";
-
 import { toast } from "react-toastify";
-
 //components
 import VisitsList from "../../components/VisitsList/VisitsList";
 import ContentLoading from "../../components/ContentLoading";
 import Modal from "../../components/Modal";
-
-import { reverseArrOrder } from "../../functions/reverseArrOrder";
-
+//icons
 import { PlusIcon, SearchIcon, SaveIcon } from "@heroicons/react/solid";
+//api
 import { postVisit } from "../../functions/apiCalls";
 
 const Visits = ({ isAuthenticated }) => {
@@ -28,6 +24,7 @@ const VisitsContent = () => {
   let [visitList, setVisitList] = React.useState([]);
   let [loading, setLoading] = React.useState(false);
   let [reloadPage, setReloadPage] = React.useState(0);
+  let [searchTxt, setSearchTxt] = React.useState("");
 
   React.useEffect(() => {
     let isMounted = true;
@@ -42,12 +39,16 @@ const VisitsContent = () => {
     axios
       .get(`${process.env.REACT_APP_API_URL}visit`, config)
       .then((res) => {
-        if (isMounted) setVisitList(res.data.data);
-        setLoading(false);
+        if (isMounted) {
+          setVisitList(res.data.data);
+          setLoading(false);
+        }
       })
-      .catch((err) => {
-        if (isMounted) setVisitList([]);
-        setLoading(false);
+      .catch(() => {
+        if (isMounted) {
+          setVisitList([]);
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -86,6 +87,8 @@ const VisitsContent = () => {
             type="text"
             className="w-full border-none outline-none p-2 bg-transparent"
             placeholder="Search..."
+            value={searchTxt}
+            onChange={(e) => setSearchTxt(e.target.value)}
           />
         </div>
 
@@ -109,7 +112,8 @@ const VisitsContent = () => {
                   </thead>
                   <tbody>
                     <VisitsList
-                      data={reverseArrOrder(visitList)}
+                      filterText={searchTxt}
+                      data={visitList}
                       runReload={() => setReloadPage(reloadPage + 1)}
                     />
                   </tbody>

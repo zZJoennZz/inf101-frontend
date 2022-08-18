@@ -1,16 +1,10 @@
 import React from "react";
-
-import "./sass/App.scss";
-
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-//components
-
-import Loading from "./components/Loading/Loading";
-
-//api
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+//other css
+import "./sass/App.scss";
+import "react-toastify/dist/ReactToastify.css";
+//components
 import SideBar from "./components/SideBar";
 import CenterContent from "./components/CenterContent";
 import RightBar from "./components/RightBar";
@@ -120,19 +114,11 @@ const App = () => {
   return (
     <div className="App">
       <div className="row">
-        {isLoading ? (
-          <div className="row">
-            <div className="col-12">
-              <Loading />
-            </div>
-          </div>
-        ) : (
-          <main className="flex">
-            <SideBar isAuth={isAuth} />
-            <CenterContent isAuth={isAuth} login={login} />
-            <RightBar isAuth={isAuth} logout={logout} />
-          </main>
-        )}
+        <main className="flex">
+          <SideBar isAuth={isAuth} />
+          <CenterContent isLoading={isLoading} isAuth={isAuth} login={login} />
+          <RightBar isAuth={isAuth} logout={logout} />
+        </main>
       </div>
       <ToastContainer
         position="top-right"

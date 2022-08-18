@@ -229,3 +229,19 @@ export async function postServiceReport(frmData) {
 }
 
 // end service report
+
+//start dashboard
+
+export async function getDashboardStats() {
+  const config = {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  };
+
+  const response = await axios.get("dashboard_stats", config);
+
+  return response.data;
+}
+
+//end dashboard

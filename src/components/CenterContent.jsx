@@ -13,66 +13,79 @@ import ManageServices from "../pages/ManageServices";
 import ManageVisitTypes from "../pages/ManageVisitTypes";
 import ManageDiscounts from "../pages/ManageDiscounts";
 import ServiceReports from "../pages/ServiceReports";
+import ContentLoading from "./ContentLoading";
 
-const CenterContent = ({ isAuth, login }) => {
+import { privateRoute, publicRoute } from "../routes/route";
+
+const CenterContent = ({ isLoading, isAuth, login }) => {
   return (
-    <div className="flex-grow h-screen max-h-screen overflow-y-auto">
+    <div className="flex-grow h-screen overflow-y-auto">
       <div className="min-w-full max-w-lg md:max-w-xl lg:max-w-2xl p-3">
-        <Routes>
-          <Route
-            exact
-            path="/"
-            element={
-              <HomeNotLoggedIn runLogin={login} isAuthenticated={isAuth} />
-            }
-          />
-          <Route
-            exact
-            path="/home"
-            element={<HomeLoggedIn isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/clients"
-            element={<Clients isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/clients/:clientId"
-            element={<ViewClient isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/clients/records/:clientId/:inputId"
-            element={<ViewRecord isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/clients/records/new/:clientId"
-            element={<NewRecord isAuthenticated={isAuth} />}
-          />
-          <Route path="/visits" element={<Visits isAuthenticated={isAuth} />} />
-          <Route
-            path="visits/view/:clientId"
-            element={<ViewVisit isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/manage-objects"
-            element={<ManageObjects isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/manage-objects/services"
-            element={<ManageServices isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/manage-objects/visit-types"
-            element={<ManageVisitTypes isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/manage-objects/discounts"
-            element={<ManageDiscounts isAuthenticated={isAuth} />}
-          />
-          <Route
-            path="/manage-objects/service-reports"
-            element={<ServiceReports isAuthenticated={isAuth} />}
-          />
-        </Routes>
+        {isLoading ? (
+          <div className="pt-24">
+            <ContentLoading />
+          </div>
+        ) : (
+          <Routes>
+            <Route
+              exact
+              path="/"
+              element={publicRoute(
+                isAuth,
+                <HomeNotLoggedIn runLogin={login} />
+              )}
+            />
+            <Route
+              exact
+              path="/home"
+              element={privateRoute(isAuth, <HomeLoggedIn />)}
+            />
+            <Route
+              path="/clients"
+              element={privateRoute(isAuth, <Clients />)}
+            />
+            <Route
+              path="/clients/:clientId"
+              element={<ViewClient isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/clients/records/:clientId/:inputId"
+              element={<ViewRecord isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/clients/records/new/:clientId"
+              element={<NewRecord isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/visits"
+              element={<Visits isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="visits/view/:clientId"
+              element={<ViewVisit isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/manage-objects"
+              element={<ManageObjects isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/manage-objects/services"
+              element={<ManageServices isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/manage-objects/visit-types"
+              element={<ManageVisitTypes isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/manage-objects/discounts"
+              element={<ManageDiscounts isAuthenticated={isAuth} />}
+            />
+            <Route
+              path="/manage-objects/service-reports"
+              element={<ServiceReports isAuthenticated={isAuth} />}
+            />
+          </Routes>
+        )}
       </div>
     </div>
   );

@@ -1,20 +1,14 @@
 import React from "react";
-
 import { useQuery } from "@tanstack/react-query";
-import { getClients, getVisits } from "../../functions/apiCalls";
-
-import { Navigate } from "react-router-dom";
+import { getDashboardStats } from "../../functions/apiCalls";
 import ContentLoading from "../../components/ContentLoading";
 
-const HomeLoggedIn = ({ isAuthenticated }) => {
-  const allClients = useQuery(["allClients"], () => getClients());
-  const allVisits = useQuery(["allVisits"], () => getVisits());
+const HomeLoggedIn = () => {
+  const allDashboardStats = useQuery(["getDashboardStats"], () =>
+    getDashboardStats()
+  );
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
-
-  if (allClients.isLoading || allVisits.isLoading) return <ContentLoading />;
+  if (allDashboardStats.isLoading) return <ContentLoading />;
 
   return (
     <div className="p-3">
@@ -25,31 +19,28 @@ const HomeLoggedIn = ({ isAuthenticated }) => {
       </div>
       <div className="mb-4 text-slate-400 italic">Summary of business</div>
       <div className="text-center">
-        {allClients.isError && "Can't fetch clients."}
-        {allVisits.isError && "Can't fetch visits."}
+        {allDashboardStats.isError && "Can't fetch stats."}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 space-x-0 md:space-x-2">
         <div className="stat-box bg-gradient-to-r from-cyan-500 to-blue-500">
           <div className="stat-title">Clients</div>
-          <div className="text-4xl">
-            {allClients.data && !allVisits.isLoading && !allClients.isError
-              ? allClients.data.data.length
-              : 0}
+          <div className="text-4xl font-bold">
+            {allDashboardStats.data.data.client}
           </div>
         </div>
         <div className="stat-box bg-gradient-to-r from-purple-500 to-pink-500">
           <div className="stat-title">Visits</div>
-          <div className="text-4xl">
-            {allVisits.data && !allVisits.isLoading && !allVisits.isError
-              ? allVisits.data.data.length
-              : 0}
+          <div className="text-4xl font-bold">
+            {allDashboardStats.data.data.visit}
           </div>
         </div>
-        <div className="stat-box bg-gradient-to-r from-yellow-500 to-lime-400">
+        <div className="stat-box bg-gradient-to-r from-red-700 to-orange-500">
           <div className="stat-title">EST. Revenue</div>
           <div>
             <span className="text-lg">₱</span>
-            <span className="text-4xl">2</span>
+            <span className="text-4xl font-bold">
+              {allDashboardStats.data.data.revenue}
+            </span>
           </div>
         </div>
       </div>

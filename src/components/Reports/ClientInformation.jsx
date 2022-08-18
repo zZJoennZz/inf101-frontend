@@ -4,9 +4,9 @@ import { getAge } from "../../functions/getAge";
 import { changeDateFormat } from "../../functions/changeDateFormat";
 
 const ClientInformation = (props) => {
-  const { ctDets, fullAddress } = props;
+  const { ctDets, fullAddress, enablePrint } = props;
   return (
-    <div>
+    <div onLoad={enablePrint()}>
       <div
         style={{
           height: "29.7cm",

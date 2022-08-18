@@ -1,10 +1,8 @@
 import React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Navigate } from "react-router-dom";
 import "./clients.scss";
 
 import { PlusIcon, SearchIcon } from "@heroicons/react/solid";
-
 import { toast } from "react-toastify";
 
 //components
@@ -17,11 +15,12 @@ import { getClients, delClient } from "../../functions/apiCalls";
 
 import NewClient from "./NewClient";
 
-const Clients = ({ isAuthenticated }) => {
+const Clients = () => {
   const queryClient = useQueryClient();
   let [openModal, setOpenModal] = React.useState(false);
   let [currentPage, setCurrentPage] = React.useState(1);
   let [clientsPerPage, setClientsPerPage] = React.useState(5);
+  let [searchTxt, setSearchTxt] = React.useState("");
 
   const { data, status } = useQuery(["allClients"], () => getClients());
 
@@ -34,10 +33,6 @@ const Clients = ({ isAuthenticated }) => {
       toast(res.message);
     },
   });
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
 
   const indexOfLastClient = currentPage * clientsPerPage;
   const indexOfFirstClient = indexOfLastClient - clientsPerPage;
@@ -71,6 +66,8 @@ const Clients = ({ isAuthenticated }) => {
             type="text"
             className="w-full border-none outline-none p-2 bg-transparent"
             placeholder="Search..."
+            value={searchTxt}
+            onChange={(e) => setSearchTxt(e.target.value)}
           />
         </div>
 
@@ -107,7 +104,11 @@ const Clients = ({ isAuthenticated }) => {
               </p>
             )}
             {data && (
-              <ClientList data={currentClients} deleteClient={deleteCt} />
+              <ClientList
+                filterText={searchTxt}
+                data={currentClients}
+                deleteClient={deleteCt}
+              />
             )}
           </div>
         </div>
