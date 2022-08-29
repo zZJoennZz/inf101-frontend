@@ -47,11 +47,13 @@ const App = () => {
             }
           } else {
             setIsAuth(false);
+            setIsAdmin(false);
             setIsLoading(false);
           }
         })
         .catch((err) => {
           toast(`${err}`);
+          setIsAdmin(false);
           setIsAuth(false);
           setIsLoading(false);
         });
@@ -76,6 +78,7 @@ const App = () => {
       .then(() => {
         localStorage.removeItem("userId");
         localStorage.removeItem("token");
+        setIsAdmin(false);
         setIsAuth(false);
       });
 
@@ -97,9 +100,15 @@ const App = () => {
             if (res.status === 200) {
               localStorage.setItem("userId", res.data.userId);
               localStorage.setItem("username", res.data.username);
+              if (res.data.is_admin === 1) {
+                setIsAdmin(true);
+              } else {
+                setIsAdmin(false);
+              }
               setIsAuth(true);
               setIsLoading(false);
             } else {
+              setIsAdmin(false);
               setIsAuth(false);
               setIsLoading(false);
             }
