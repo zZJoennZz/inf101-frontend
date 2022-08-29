@@ -1,10 +1,14 @@
 import UserMenus from "./UserMenus/UserMenus";
 
-const RightBar = ({ logout, isAuth }) => {
+const RightBar = ({ isAdmin, logout, isAuth }) => {
   return (
-    <div className="hidden lg:flex flex-col w-60 p-2 border-l border-gray-200">
+    <div className="w-0 p-0 lg:flex flex-col lg:w-60 lg:p-2 border-l border-gray-200">
       {isAuth ? (
-        <UserMenus runLogout={logout} isAuthenticated={isAuth} />
+        <UserMenus
+          isAdmin={isAdmin}
+          runLogout={logout}
+          isAuthenticated={isAuth}
+        />
       ) : (
         <></>
       )}

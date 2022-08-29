@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import "./visitslist.scss";
 import { FolderOpenIcon, TrashIcon } from "@heroicons/react/outline";
 import { reverseArrOrder } from "../../functions/reverseArrOrder";
 
@@ -58,8 +57,11 @@ const VisitsList = (props) => {
       return clientName.includes(filterText);
     })
     .map((e) => (
-      <tr className="border-b" key={e.id}>
-        <td className="py-3">
+      <tr
+        className="border-b hover:bg-slate-100 transition-all ease-in-out"
+        key={e.id}
+      >
+        <td className="py-3 pl-2">
           <strong>{e.visit_date}</strong>{" "}
           <div className="text-xs italic">
             {convertTime(e.time_in)} - {convertTime(e.time_out)}
@@ -80,7 +82,7 @@ const VisitsList = (props) => {
           <button className="mr-1 font-bold py-1 px-2 bg-slate-400 hover:bg-slate-200 rounded-md">
             <Link
               to={"/visits/view/" + e.id}
-              className="text-white flex items-center hover:text-slate-600"
+              className="flex items-center text-white hover:text-slate-600"
             >
               <FolderOpenIcon className="mr-2 w-4 h-4" />
               View

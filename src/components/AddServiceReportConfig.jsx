@@ -22,6 +22,9 @@ function AddServiceReportConfig({ services, serviceReports, submitForm }) {
       <form onSubmit={formSubmit}>
         <div className="grid grid-cols-1 space-x-0 md:grid-cols-5 md:space-x-3 mb-5 md:mb-0">
           <div className="col-span-2">
+            <label htmlFor="service_id" className="uppercase">
+              Service:
+            </label>
             <select
               className="form-input-text mb-2"
               name="service_id"
@@ -38,6 +41,9 @@ function AddServiceReportConfig({ services, serviceReports, submitForm }) {
             </select>
           </div>
           <div className="col-span-2">
+            <label htmlFor="service_report_id" className="uppercase">
+              Available Reports to Add:
+            </label>
             <select
               name="service_report_id"
               id="service_report_id"
@@ -56,7 +62,7 @@ function AddServiceReportConfig({ services, serviceReports, submitForm }) {
           <div className="col-span-1">
             <button
               type="submit"
-              className="bg-cyan-600 text-white w-full md:w-auto p-2 rounded hover:bg-cyan-500 transition-all ease-in-out"
+              className="md:mt-6 bg-cyan-600 text-white w-full md:w-auto p-2 rounded hover:bg-cyan-500 transition-all ease-in-out"
             >
               <PlusSmIcon className="h-6 w-6 mx-auto" />
             </button>

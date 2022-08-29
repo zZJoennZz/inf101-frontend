@@ -7,6 +7,7 @@ body {
   font-family: -apple-system, "Exo", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: rgb(78, 78, 78);
 }
 
 code {
@@ -15,6 +16,18 @@ code {
 }
 
 @layer components {
+  a {
+    @apply text-cyan-600;
+  }
+
+  a:active {
+    @apply text-cyan-700;
+  }
+
+  a:hover {
+    @apply text-slate-600 no-underline;
+  }
+
   .form-label-required {
     @apply mb-1 block after:content-['*'] after:ml-0.5 after:text-red-500 mr-4 text-sm uppercase font-bold;
   }
@@ -32,6 +45,10 @@ code {
     @apply absolute top-0.5 left-0.5 bg-white border border-gray-300 rounded-full h-5 w-5 transition shadow-sm;
   }
 
+  input {
+    @apply text-slate-600;
+  }
+
   input:checked + .toggle-bg:after {
     transform: translateX(100%);
     @apply border-white;
@@ -47,5 +64,27 @@ code {
 
   .stat-title {
     @apply font-semibold uppercase;
+  }
+
+  .my-account-box {
+    @apply w-11/12 md:w-2/3 h-full bg-white border border-slate-300 rounded-lg p-4 m-auto;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #section-to-print,
+  #section-to-print * {
+    visibility: visible;
+  }
+  #section-to-print {
+    display: block !important;
+  }
+
+  @page {
+    size: 7in 9.25in;
+    margin: 0mm;
   }
 }

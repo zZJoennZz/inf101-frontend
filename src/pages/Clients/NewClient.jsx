@@ -46,42 +46,6 @@ const NewClient = ({ closeModal }) => {
     data.append("image", ctImage);
     data.append("sig", ctSig);
     mutate(data);
-
-    // await axios
-    //   .post(process.env.REACT_APP_API_IMG, imageData)
-    //   .then((res) => {
-    //     imgPath = res.data.img_url;
-    //     sigPath = res.data.sig_url;
-    //     let data = new FormData();
-    //     for (let key of Object.keys(frmData)) {
-    //       data.append(key, frmData[key]);
-    //     }
-    //     data.append("image", imgPath);
-    //     data.append("signature", sigPath);
-    //     axios
-    //       .post(`${process.env.REACT_APP_API_URL}client`, data, {
-    //         headers: {
-    //           Authorization: localStorage.getItem("token"),
-    //           "Content-Type": "multipart/form-data",
-    //           "Allow-Control-Allow-Origin": "*",
-    //         },
-    //       })
-    //       .then((res) => {
-    //         toast("Client profile added!");
-    //         frmRef.current.reset();
-    //         closeModal(false);
-    //         setIsSubmit(false);
-    //         rerunList();
-    //       })
-    //       .catch((err) => {
-    //         toast(err);
-    //         setIsSubmit(false);
-    //       });
-    //   })
-    //   .catch((err) => {
-    //     toast(err);
-    //     setIsSubmit(false);
-    //   });
   };
 
   const onChangeText = async (e) => {
@@ -96,7 +60,7 @@ const NewClient = ({ closeModal }) => {
         );
         break;
       case "province":
-        await cities(fieldValue).then((cities) => setCitiesList(cities));
+        await cities(fieldValue).then((cties) => setCitiesList(cties));
         break;
       case "city":
         await barangays(fieldValue).then((bgry) => setBarangaysList(bgry));
@@ -214,6 +178,7 @@ const NewClient = ({ closeModal }) => {
                 required
                 className={frmFieldClassess.textField}
               >
+                <option value={0}>Select</option>
                 {genders.map((d) => (
                   <option key={d.value} value={d.value}>
                     {d.label}

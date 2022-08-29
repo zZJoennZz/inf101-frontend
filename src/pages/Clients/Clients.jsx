@@ -1,10 +1,7 @@
 import React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import "./clients.scss";
-
 import { PlusIcon, SearchIcon } from "@heroicons/react/solid";
 import { toast } from "react-toastify";
-
 //components
 import ClientList from "../../components/ClientsList/ClientsList";
 import Modal from "../../components/Modal";
@@ -22,7 +19,10 @@ const Clients = () => {
   let [clientsPerPage, setClientsPerPage] = React.useState(5);
   let [searchTxt, setSearchTxt] = React.useState("");
 
-  const { data, status } = useQuery(["allClients"], () => getClients());
+  const { data, status } = useQuery(["allClients"], () => getClients(), {
+    retry: false,
+    retryOnMount: false,
+  });
 
   const deleteCt = useMutation(delClient, {
     onSuccess: (res) => {
@@ -92,7 +92,7 @@ const Clients = () => {
           >
             <ClientPagination
               clientsPerPage={clientsPerPage}
-              totalClients={data && data.length}
+              totalClients={data && data.data.length}
               paginate={paginate}
             />
           </div>

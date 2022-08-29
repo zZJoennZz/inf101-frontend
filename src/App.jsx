@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 //other css
-import "./sass/App.scss";
+
 import "react-toastify/dist/ReactToastify.css";
 //components
 import SideBar from "./components/SideBar";
@@ -12,6 +12,7 @@ import RightBar from "./components/RightBar";
 const App = () => {
   let [isLoading, setIsLoading] = React.useState(false);
   let [isAuth, setIsAuth] = React.useState(false);
+  let [isAdmin, setIsAdmin] = React.useState(false);
 
   const login = async (logDetail) => {
     setIsLoading(true);
@@ -39,6 +40,11 @@ const App = () => {
             localStorage.setItem("username", res.data.username);
             setIsAuth(true);
             setIsLoading(false);
+            if (res.data.is_admin === 1) {
+              setIsAdmin(true);
+            } else {
+              setIsAdmin(false);
+            }
           } else {
             setIsAuth(false);
             setIsLoading(false);
@@ -67,7 +73,7 @@ const App = () => {
 
     await axios
       .post(`${process.env.REACT_APP_API_URL}signout`, null, config)
-      .then((res) => {
+      .then(() => {
         localStorage.removeItem("userId");
         localStorage.removeItem("token");
         setIsAuth(false);
@@ -117,20 +123,19 @@ const App = () => {
         <main className="flex">
           <SideBar isAuth={isAuth} />
           <CenterContent isLoading={isLoading} isAuth={isAuth} login={login} />
-          <RightBar isAuth={isAuth} logout={logout} />
+          <RightBar isAdmin={isAdmin} isAuth={isAuth} logout={logout} />
         </main>
       </div>
       <ToastContainer
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
-        draggable
+        draggable={false}
         pauseOnHover
-        theme="light"
       />
     </div>
   );

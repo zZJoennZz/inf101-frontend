@@ -1,15 +1,11 @@
 import React from "react";
-import { useParams, Navigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-// import ReportMyBody from "../../components/Reports/ReportMyBody";
 import { callReport } from "../../functions/callReport";
+import ContentLoading from "../../components/ContentLoading";
 
-const ViewVisit = ({ isAuthenticated }) => {
+const ViewVisit = () => {
   let { clientId } = useParams();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
 
   return <VisitDetails clientId={clientId} />;
 };
@@ -58,7 +54,7 @@ const VisitDetails = ({ clientId }) => {
   }, [clientId]);
 
   if (visitDetail.length === 0 || servicesList.length === 0) {
-    return "Loading...";
+    return <ContentLoading />;
   }
 
   const formatter = new Intl.NumberFormat("en-US", {
@@ -74,7 +70,7 @@ const VisitDetails = ({ clientId }) => {
 
       <div className="border-b pb-2 mb-3">
         <img
-          src={visitDetail[0].image}
+          src={process.env.REACT_APP_IMG_PATH_URL + visitDetail[0].image}
           className="w-24 h-24 bg-white rounded-md shadow-md md:float-right border-2 border-white"
           alt={
             visitDetail[0].first_name +
@@ -86,8 +82,10 @@ const VisitDetails = ({ clientId }) => {
         />
         <div className="text-sm italic">Client Name:</div>
         <h1 className="text-xl font-bold">
-          {visitDetail[0].first_name} {visitDetail[0].middle_name}{" "}
-          {visitDetail[0].last_name}
+          <Link to={`/clients/${visitDetail[0].client}`}>
+            {visitDetail[0].first_name} {visitDetail[0].middle_name}{" "}
+            {visitDetail[0].last_name}
+          </Link>
         </h1>
         <div className="p-3 text-sm bg-slate-100 mt-2 rounded-md mb-3">
           <strong>Visit Date:</strong> {visitDetail[0].visit_date}{" "}
@@ -200,13 +198,6 @@ const VisitDetails = ({ clientId }) => {
         )}
         {reportsList.map((report) => (
           <div key={report.id} className="mb-3">
-            {/* {report.service_report_id === 5 && (
-              <ReportMyBody
-                visitId={visitDetail[0].id}
-                reportId={report.service_report_id}
-                clientId={visitDetail[0].client}
-              />
-            )} */}
             {callReport(
               report.form_name,
               visitDetail[0].id,

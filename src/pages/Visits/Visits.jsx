@@ -1,7 +1,5 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
 import axios from "axios";
-import "./visits.scss";
 import { toast } from "react-toastify";
 //components
 import VisitsList from "../../components/VisitsList/VisitsList";
@@ -12,10 +10,7 @@ import { PlusIcon, SearchIcon, SaveIcon } from "@heroicons/react/solid";
 //api
 import { postVisit } from "../../functions/apiCalls";
 
-const Visits = ({ isAuthenticated }) => {
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
+const Visits = () => {
   return <VisitsContent />;
 };
 
@@ -553,6 +548,10 @@ const SearchClient = ({ selectClient }) => {
   let [searchRes, setSearchRes] = React.useState([]);
 
   const runSearchCt = async () => {
+    if (searchCt.trim() === "") {
+      window.alert("Empty string is not allowed.");
+      return;
+    }
     let data = {
       search_query: searchCt,
     };

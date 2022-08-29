@@ -10,11 +10,11 @@ const ClientPagination = ({ clientsPerPage, totalClients, paginate }) => {
   return (
     <ul className="pagination space-x-1 mb-4">
       {pageNumbers.map((number) => (
-        <li
-          key={number}
-          className="page-item px-3 py-1 rounded-full text-xl inline-block bg-cyan-700 text-white hover:bg-cyan-500"
-        >
-          <button onClick={paginate.bind(this, number)} className="page-link">
+        <li key={number} className="page-item inline-block">
+          <button
+            onClick={paginate.bind(this, number)}
+            className="page-link w-6 h-6 rounded-full text-xs bg-cyan-700 text-white flex items-center justify-center transition-all ease-in-out hover:bg-cyan-500"
+          >
             {number}
           </button>
         </li>

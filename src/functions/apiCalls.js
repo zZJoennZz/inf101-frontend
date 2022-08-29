@@ -129,6 +129,62 @@ export async function getUsers() {
   return response.data;
 }
 
+export async function getUserForAdmin(userId) {
+  const config = {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  };
+
+  const response = await axios.get(`get_user/${userId}`, config);
+
+  return response.data;
+}
+
+export async function getUsersForAdmin() {
+  const config = {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  };
+
+  const response = await axios.get(`all_users`, config);
+
+  return response.data;
+}
+
+export async function putUserForAdmin(data) {
+  const config = {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  };
+
+  const response = await axios.put(
+    `edit_user/${data.user_id}/${data.profile_id}`,
+    data.frmData,
+    config
+  );
+
+  return response.data;
+}
+
+/**
+ * @param {Object} frmData The form containing the user details you want to save.
+ * @returns The response data from the API.
+ */
+export async function postUser(frmData) {
+  const config = {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  };
+
+  const response = await axios.post(`newuser`, frmData, config);
+
+  return response.data;
+}
+
 // end user accounts
 
 // start visits
@@ -181,6 +237,18 @@ export async function postServiceReportConfiguration() {
   };
 
   const response = await axios.post(`service_report_config`, null, config);
+
+  return response.data;
+}
+
+export async function deleteServiceReportConfiguration(srcId) {
+  const config = {
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
+  };
+
+  const response = await axios.delete(`service_report_config/${srcId}`, config);
 
   return response.data;
 }

@@ -18,6 +18,29 @@ const HomeLoggedIn = () => {
         </h1>
       </div>
       <div className="mb-4 text-slate-400 italic">Summary of business</div>
+      <div className="mb-4 hidden">
+        <label htmlFor="date_from" className="mr-2">
+          Date From
+        </label>
+        <input
+          type="date"
+          name="date_from"
+          id="date_from"
+          className="inline-block bg-slate-200 p-1 text-sm border border-slate-300 rounded mr-5"
+        />
+        <label htmlFor="date_from" className="mr-2">
+          Date From
+        </label>
+        <input
+          type="date"
+          name="date_from"
+          id="date_from"
+          className="inline-block bg-slate-200 p-1 text-sm border border-slate-300 rounded mr-5"
+        />
+        <button className="inline-block text-sm bg-cyan-600 text-white p-1 rounded hover:bg-cyan-500 transition-all ease-in-out">
+          Filter
+        </button>
+      </div>
       <div className="text-center">
         {allDashboardStats.isError && "Can't fetch stats."}
       </div>

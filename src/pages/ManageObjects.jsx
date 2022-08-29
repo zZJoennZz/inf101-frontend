@@ -1,14 +1,12 @@
 import React from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const ManageObjects = ({ isAuthenticated }) => {
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
-
+const ManageObjects = () => {
   return (
     <div className="mx-auto p-2">
-      <p className="mb-4 uppercase text-xl font-bold">Manage inf101 objects</p>
+      <div className="border-b pb-1 font-bold text-lg uppercase mb-3">
+        Manage Objects
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto mb-4">
         <Link
           to="/manage-objects/services"
@@ -34,7 +32,9 @@ const ManageObjects = ({ isAuthenticated }) => {
           <div className="text-sm">Add, edit, or delete discounts.</div>
         </Link>
       </div>
-      <p className="mb-4 uppercase text-xl font-bold">Manage report objects</p>
+      <div className="border-b pb-1 font-bold text-lg uppercase mb-3">
+        Manage Report Objects
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mx-auto">
         <Link
           to="/manage-objects/service-reports"

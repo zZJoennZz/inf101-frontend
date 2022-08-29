@@ -2,11 +2,9 @@ import { Route, Routes } from "react-router-dom";
 
 import Clients from "../pages/Clients/Clients";
 import ViewClient from "../pages/Clients/ViewClient";
-import ViewRecord from "../pages/Clients/ViewRecord";
 import HomeNotLoggedIn from "../pages/Home/HomeNotLoggedIn";
 import HomeLoggedIn from "../pages/Home/HomeLoggedIn";
 import Visits from "../pages/Visits/Visits";
-import NewRecord from "../pages/Clients/NewRecord";
 import ViewVisit from "../pages/Visits/ViewVisit";
 import ManageObjects from "../pages/ManageObjects";
 import ManageServices from "../pages/ManageServices";
@@ -16,6 +14,8 @@ import ServiceReports from "../pages/ServiceReports";
 import ContentLoading from "./ContentLoading";
 
 import { privateRoute, publicRoute } from "../routes/route";
+import MyAccount from "../pages/MyAccount";
+import ManageUsers from "../pages/ManageUsers";
 
 const CenterContent = ({ isLoading, isAuth, login }) => {
   return (
@@ -48,41 +48,38 @@ const CenterContent = ({ isLoading, isAuth, login }) => {
               path="/clients/:clientId"
               element={privateRoute(isAuth, <ViewClient />)}
             />
-            <Route
-              path="/clients/records/:clientId/:inputId"
-              element={<ViewRecord isAuthenticated={isAuth} />}
-            />
-            <Route
-              path="/clients/records/new/:clientId"
-              element={<NewRecord isAuthenticated={isAuth} />}
-            />
-            <Route
-              path="/visits"
-              element={<Visits isAuthenticated={isAuth} />}
-            />
+            <Route path="/visits" element={privateRoute(isAuth, <Visits />)} />
             <Route
               path="visits/view/:clientId"
-              element={<ViewVisit isAuthenticated={isAuth} />}
+              element={privateRoute(isAuth, <ViewVisit />)}
             />
             <Route
               path="/manage-objects"
-              element={<ManageObjects isAuthenticated={isAuth} />}
+              element={privateRoute(isAuth, <ManageObjects />)}
             />
             <Route
               path="/manage-objects/services"
-              element={<ManageServices isAuthenticated={isAuth} />}
+              element={privateRoute(isAuth, <ManageServices />)}
             />
             <Route
               path="/manage-objects/visit-types"
-              element={<ManageVisitTypes isAuthenticated={isAuth} />}
+              element={privateRoute(isAuth, <ManageVisitTypes />)}
             />
             <Route
               path="/manage-objects/discounts"
-              element={<ManageDiscounts isAuthenticated={isAuth} />}
+              element={privateRoute(isAuth, <ManageDiscounts />)}
             />
             <Route
               path="/manage-objects/service-reports"
-              element={<ServiceReports isAuthenticated={isAuth} />}
+              element={privateRoute(isAuth, <ServiceReports />)}
+            />
+            <Route
+              path="/my-account"
+              element={privateRoute(isAuth, <MyAccount />)}
+            />
+            <Route
+              path="/manage-users/*"
+              element={privateRoute(isAuth, <ManageUsers />)}
             />
           </Routes>
         )}

@@ -1,13 +1,13 @@
 import React from "react";
 import axios from "axios";
 
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { PlusIcon, FolderOpenIcon } from "@heroicons/react/solid";
 
 import { ArrowCircleLeftIcon } from "@heroicons/react/outline";
 
-const ManageVisitTypes = ({ isAuthenticated }) => {
+const ManageVisitTypes = () => {
   let [pageMode, setPageMode] = React.useState("listPage");
   let [pageReload, setPageReload] = React.useState(0);
   let [selectedVisitType, setSelectedVisitType] = React.useState(0);
@@ -38,10 +38,6 @@ const ManageVisitTypes = ({ isAuthenticated }) => {
       isMounted = false;
     };
   }, [pageMode, pageReload]);
-
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
-  }
 
   if (pageMode === "listPage") {
     return (

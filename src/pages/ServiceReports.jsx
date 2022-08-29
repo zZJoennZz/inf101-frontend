@@ -1,4 +1,4 @@
-import { Navigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   ArrowCircleLeftIcon,
   ChevronDoubleRightIcon,
@@ -9,13 +9,14 @@ import {
   getServices,
   getServiceReports,
   postServiceReport,
+  deleteServiceReportConfiguration,
 } from "../functions/apiCalls";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import ContentLoading from "../components/ContentLoading";
 import AddServiceReportConfig from "../components/AddServiceReportConfig";
 import { toast } from "react-toastify";
 
-const ServiceReports = ({ isAuthenticated }) => {
+const ServiceReports = () => {
   const queryClient = useQueryClient();
   const getSrc = useQuery(["getSrc"], () => getServiceReportConfigurations(), {
     refetchOnWindowFocus: false,
@@ -41,33 +42,28 @@ const ServiceReports = ({ isAuthenticated }) => {
     },
   });
 
+  const deleteReportConfig = useMutation(deleteServiceReportConfiguration, {
+    onSuccess: (res) => {
+      queryClient.invalidateQueries(["getSrc"]);
+      toast(res.message);
+    },
+    onError: (res) => {
+      toast(res.data.message);
+    },
+  });
+
   async function addNew(frmData) {
     postReportConfig.mutate(frmData);
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/" />;
+  async function removeSrc(srcId) {
+    let conf = window.confirm(
+      "Are you sure to remove this report from this service?"
+    );
+    if (conf) {
+      deleteReportConfig.mutate(srcId);
+    }
   }
-
-  // async function testFn() {
-  //   try {
-  //     postServiceReportConfiguration().catch((err) => {
-  //       let errors = "";
-
-  //       for (let value of Object.values(err.response.data.error)) {
-  //         if (errors === "") {
-  //           errors = value[0];
-  //         } else {
-  //           errors = errors + "\n" + value[0];
-  //         }
-  //       }
-
-  //       alert(errors);
-  //     });
-  //   } catch (error) {
-  //     alert(error);
-  //   }
-  // }
 
   return (
     <div>
@@ -122,7 +118,10 @@ const ServiceReports = ({ isAuthenticated }) => {
                           className="flex items-center"
                         >
                           <ChevronDoubleRightIcon className="h-3 w-3 mr-3 inline-block text-slate-300" />
-                          <TrashIcon className="h-5 w-5 mr-3 text-red-500" />
+                          <TrashIcon
+                            className="h-5 w-5 mr-3 text-red-500 cursor-pointer hover:text-red-400"
+                            onClick={removeSrc.bind(this, service_config.id)}
+                          />
 
                           {service_config.report_name}
                         </div>

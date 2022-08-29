@@ -32,6 +32,11 @@ const ClientsList = (props) => {
           </tr>
         </thead>
         <tbody>
+          {data.length === 0 && (
+            <tr className="border-b hover:bg-slate-100">
+              <td colSpan={2}>No data</td>
+            </tr>
+          )}
           {data
             .filter((client) => {
               let clientName =
@@ -50,7 +55,7 @@ const ClientsList = (props) => {
               <tr className="border-b hover:bg-slate-100" key={client.id}>
                 <td className="p-2 text-left">
                   <img
-                    src={client.image}
+                    src={process.env.REACT_APP_IMG_PATH_URL + client.image}
                     className="rounded-full w-6 h-6 inline-block mr-3"
                     alt="client"
                   />
